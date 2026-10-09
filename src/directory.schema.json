@@ -1,0 +1,202 @@
+{
+	"$schema": "/Users/rin/mydev/schema/jsonschema-extends-expansion/src/nouse_dynamicAnchor/extends.schema.json",
+	"title": "directory-jsonschema",
+	"description": "ディレクトリ構造やFileの表現を1つのJSONで実現するためのSchema。簡単なディレクトリに対するschema表現も可能。",
+	"type": "array",
+	"x-strict-extends": true,
+	"items": {
+		"oneOf": [
+			{ "$ref": "#/$defs/tree_node" },
+			{ "$ref": "#/$defs/tree_report" }
+		]
+	},
+	"$defs": {
+		"struct": {
+			"type": "object",
+			"unevaluatedProperties": false,
+			"x-extension": true,
+			"properties": {
+				"report": { "$ref": "#/$defs/tree_report" },
+				"description": {
+					"type": "string",
+					"description": "ディレクトリの説明",
+					"x-extension": true
+				}
+			},
+			"allOf": [{ "$ref": "#/$defs/directory-prop" }],
+			"description": "tree_nodeのみの配列"
+		},
+		"tree_node": {
+			"oneOf": [
+				{ "$ref": "#/$defs/file" },
+				{ "$ref": "#/$defs/link" },
+				{ "$ref": "#/$defs/directory" }
+			]
+		},
+		"tree_report": {
+			"type": "object",
+			"unevaluatedProperties": false,
+			"required": ["type", "directories", "files"],
+			"properties": {
+				"type": {
+					"const": "report"
+				},
+				"directories": {
+					"minimum": 0,
+					"type": "integer",
+					"description": "走査したディレクトリの総数"
+				},
+				"files": {
+					"minimum": 0,
+					"type": "integer",
+					"description": "走査したファイルの総数"
+				}
+			}
+		},
+		"common": {
+			"type": "object",
+			"required": ["type", "name"],
+			"properties": {
+				"name": {
+					"type": "string",
+					"description": "ファイルまたはディレクトリの名前"
+				},
+				"size": {
+					"minimum": 0,
+					"type": "integer",
+					"description": "tree -s で付与されるファイルサイズ"
+				},
+				"regex-name": {
+					"type": "boolean",
+					"default": false,
+					"description": "名前を正規表現で指定可能 nameの例:`^[a-z][a-zA-Z0-9]+\\.ts$`"
+				},
+				"description": {
+					"type": "string",
+					"description": "ファイルオブジェクトの説明",
+					"x-extension": true
+				},
+				"detail": {
+					"type": "string",
+					"description": "ファイルオブジェクトの詳細な説明",
+					"x-extension": true
+				},
+				"optional": {
+					"type": "boolean",
+					"default": false,
+					"description": "オプショナルか？",
+					"x-extension": true
+				}
+			}
+		},
+		"directory-prop": {
+			"type": "object",
+			"properties": {
+				"strict": {
+					"x-extension": true,
+					"type": "boolean",
+					"description": "trueならば`直下のcontents`がディレクトリの全要素を含むことを意味する"
+				},
+				"recursive-strict": {
+					"x-extension": true,
+					"type": "boolean",
+					"description": "`strict`プロパティの効果が以下のobjectへ再帰的に掛かる"
+				},
+				"contents": {
+					"type": "array",
+					"description": "サブディレクトリやファイル",
+					"items": {
+						"$ref": "#/$defs/tree_node"
+					}
+				}
+			}
+		},
+		"directory": {
+			"unevaluatedProperties": false,
+			"allOf": [
+				{ "$ref": "#/$defs/common" },
+				{
+					"type": "object",
+					"allOf": [{ "$ref": "#/$defs/directory-prop" }],
+					"properties": {
+						"type": {
+							"type": "string",
+							"const": "directory"
+						}
+					}
+				}
+			]
+		},
+		"link": {
+			"unevaluatedProperties": false,
+			"required": ["target"],
+			"allOf": [
+				{ "$ref": "#/$defs/common" },
+				{
+					"type": "object",
+					"properties": {
+						"type": {
+							"type": "string",
+							"const": "link"
+						},
+						"target": {
+							"type": "string",
+							"description": "参照先"
+						}
+					}
+				}
+			]
+		},
+		"file": {
+			"unevaluatedProperties": false,
+			"allOf": [
+				{ "$ref": "#/$defs/common" },
+				{
+					"type": "object",
+					"properties": {
+						"type": {
+							"type": "string",
+							"const": "file"
+						},
+						"data": {
+							"type": "object",
+							"required": ["schema"],
+							"oneOf": [
+								{
+									"additionalProperties": false,
+									"properties": {
+										"schema": { "type": "string", "const": "text" },
+										"text": {
+											"type": "string",
+											"description": "ファイルの内容"
+										},
+										"start": {
+											"type": "string",
+											"description": "ファイルのprefix"
+										},
+										"regex": {
+											"type": "string",
+											"description": "ファイルが満たしている正規表現"
+										}
+									}
+								},
+								{
+									"additionalProperties": false,
+									"properties": {
+										"schema": { "type": "string", "const": "json" },
+										"properties": {
+											"description": "jsonが持つ完全なプロパティ"
+										},
+										"contain": {
+											"description": "jsonが含んでいるプロパティ"
+										}
+									}
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	}
+}
