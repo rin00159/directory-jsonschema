@@ -19,7 +19,7 @@
 				"report": { "$ref": "#/$defs/tree_report" },
 				"description": {
 					"type": "string",
-					"description": "ディレクトリの説明",
+					"title": "ディレクトリの説明",
 					"x-extension": true
 				}
 			},
@@ -44,12 +44,12 @@
 				"directories": {
 					"minimum": 0,
 					"type": "integer",
-					"description": "走査したディレクトリの総数"
+					"title": "走査したディレクトリの総数"
 				},
 				"files": {
 					"minimum": 0,
 					"type": "integer",
-					"description": "走査したファイルの総数"
+					"title": "走査したファイルの総数"
 				}
 			}
 		},
@@ -59,32 +59,33 @@
 			"properties": {
 				"name": {
 					"type": "string",
-					"description": "ファイルまたはディレクトリの名前"
+					"title": "ファイルまたはディレクトリの名前"
 				},
 				"size": {
 					"minimum": 0,
 					"type": "integer",
-					"description": "tree -s で付与されるファイルサイズ"
+					"title": "ファイルサイズ"
 				},
 				"regex-name": {
 					"type": "boolean",
 					"default": false,
-					"description": "名前を正規表現で指定可能 nameの例:`^[a-z][a-zA-Z0-9]+\\.ts$`"
+					"title": "名前に正規表現を使う",
+					"description": "nameの例:`^[a-z][a-zA-Z0-9]+\\.ts$`"
 				},
 				"description": {
 					"type": "string",
-					"description": "ファイルオブジェクトの説明",
+					"title": "ファイルオブジェクトの説明",
 					"x-extension": true
 				},
 				"detail": {
 					"type": "string",
-					"description": "ファイルオブジェクトの詳細な説明",
+					"title": "ファイルオブジェクトの詳細",
 					"x-extension": true
 				},
 				"optional": {
 					"type": "boolean",
 					"default": false,
-					"description": "オプショナルか？",
+					"title": "オプショナルか？",
 					"x-extension": true
 				}
 			}
@@ -168,15 +169,15 @@
 										"schema": { "type": "string", "const": "text" },
 										"text": {
 											"type": "string",
-											"description": "ファイルの内容"
+											"title": "ファイルの内容"
 										},
 										"start": {
 											"type": "string",
-											"description": "ファイルのprefix"
+											"title": "ファイルのprefix"
 										},
 										"regex": {
 											"type": "string",
-											"description": "ファイルが満たしている正規表現"
+											"title": "ファイルが満たしている正規表現"
 										}
 									}
 								},
@@ -185,10 +186,10 @@
 									"properties": {
 										"schema": { "type": "string", "const": "json" },
 										"properties": {
-											"description": "jsonが持つ完全なプロパティ"
+											"title": "jsonが持つ完全なプロパティ"
 										},
 										"contain": {
-											"description": "jsonが含んでいるプロパティ"
+											"title": "jsonが含んでいるプロパティ"
 										}
 									}
 								}
