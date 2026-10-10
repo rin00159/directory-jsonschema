@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct
+strict: recursive
+contents:
+  - type: file
+    name: DIRDESC.yaml
+    description: ディレクトリ構造説明
+    optional: true
+    data:
+      schema: json
+      contain: {
+        "$schema": "/Users/rin/mydev/schema/ripo-schema/src/schema/package.cdx.schema.json"
+      }

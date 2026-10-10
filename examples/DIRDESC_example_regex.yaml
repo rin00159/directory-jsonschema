@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct
-recursive-strict: true
+strict: recursive
 contents:
   - type: file
     name: "^[a-z][a-zA-Z0-9]+\\.ts$"

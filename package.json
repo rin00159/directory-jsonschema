@@ -1,4 +1,32 @@
 {
+	"$schema": "/Users/rin/mydev/schema/ripo-schema/src/schema/withRipoLinks/package.schema.json",
 	"name": "directory-jsonschema",
-	"description": "//todo 現在は開発中で ripo-schema を最優先で完成させる。"
+	"version": "0.0.0",
+	"description": "ツール非依存にディレクトリ構造をJSONで表現するためのJSONSchema。`tree -J`ベースだが互換性はない//todo 現在は開発中で ripo-schema を最優先で完成させる。",
+	"author": "Rintaro Osumi <0sumirintaro@gmail.com>",
+	"license": "MIT",
+	"homepage": "https://github.com/rin00159/directory-jsonschema#readme",
+	"bugs": {
+		"url": "https://github.com/rin00159/directory-jsonschema/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rin00159/directory-jsonschema.git"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"math//fix",
+		"openmath",
+		"json",
+		"jsonschema"
+	],
+	"files": [
+		"LICENSE",
+		"README.md",
+		"package.json",
+		"DIRDESC.yaml",
+		"src"
+	]
 }

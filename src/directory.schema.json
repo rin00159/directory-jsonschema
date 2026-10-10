@@ -1,203 +1,385 @@
 {
 	"$schema": "/Users/rin/mydev/schema/jsonschema-extends-expansion/src/nouse_dynamicAnchor/extends.schema.json",
-	"title": "directory-jsonschema",
-	"description": "ディレクトリ構造やFileの表現を1つのJSONで実現するためのSchema。簡単なディレクトリに対するschema表現も可能。",
+	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者では実体を意味定義に持たない記述(regex-name / optional / strict / sizeの範囲指定 / data の start・regex・contain)は不要なため、#/$defs/struct の concrete: true で禁止できる。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。",
+	"title": "Directory Structure Schema",
+	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。",
 	"type": "array",
 	"x-strict-extends": true,
 	"items": {
 		"oneOf": [
-			{ "$ref": "#/$defs/tree_node" },
-			{ "$ref": "#/$defs/tree_report" }
+			{ "$ref": "#/$defs/tree-node" },
+			{ "$ref": "#/$defs/tree-report" }
 		]
 	},
 	"$defs": {
 		"struct": {
+			"$comment": "concrete: true のとき、contents 配下の全ノードに #/$defs/concrete-node を適用する。JSON Schemaには親のフラグを子へ伝播する標準機構がないため、再帰的な concrete-node 定義で実現している。",
 			"type": "object",
 			"unevaluatedProperties": false,
 			"x-extension": true,
+			"title": "ディレクトリ構造定義",
+			"description": "ルートディレクトリの構造やメタデータを定義するオブジェクト。`$schema` に `#/$defs/struct` を指定して使う",
 			"properties": {
-				"report": { "$ref": "#/$defs/tree_report" },
+				"$schema": {
+					"type": "string",
+					"title": "スキーマ参照",
+					"description": "この記述が従うスキーマのパスまたはURI"
+				},
+				"report": { "$ref": "#/$defs/tree-report" },
 				"description": {
 					"type": "string",
 					"title": "ディレクトリの説明",
-					"x-extension": true
+					"description": "このディレクトリ構造全体に関する説明や目的"
+				},
+				"concrete": {
+					"type": "boolean",
+					"default": false,
+					"title": "実体記述モード",
+					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱い、実体を意味定義に持たない記述を自身と配下のすべてのノードで禁止します。禁止対象: `regex-name`、`optional`、`strict`、`size` の範囲指定、`data` の部分一致・制約系(`start`、`regex`、`contain`)。`data` は内容そのもの(text: `text` / json: `properties`)の指定を必須とします"
 				}
 			},
-			"allOf": [{ "$ref": "#/$defs/directory-prop" }],
-			"description": "tree_nodeのみの配列"
+			"allOf": [{ "$ref": "#/$defs/directory-body" }],
+			"if": {
+				"required": ["concrete"],
+				"properties": { "concrete": { "const": true } }
+			},
+			"then": {
+				"properties": {
+					"strict": false,
+					"contents": { "items": { "$ref": "#/$defs/concrete-node" } }
+				}
+			}
 		},
-		"tree_node": {
-			"oneOf": [
-				{ "$ref": "#/$defs/file" },
-				{ "$ref": "#/$defs/link" },
-				{ "$ref": "#/$defs/directory" }
+		"concrete-node": {
+			"$comment": "tree-node に加えて、実体を意味定義に持たない記述を禁止する。contents を再帰的に辿ることで、struct の concrete フラグを配下全体へ伝播させる。",
+			"title": "実体ノード",
+			"description": "concrete モードで許可されるノード。`regex-name`・`optional`・`strict` は指定自体を禁止、`size` は整数(完全一致)のみ、`data` は実体ファイルデータ(`concrete-file-data`)に従う",
+			"$ref": "#/$defs/tree-node",
+			"properties": {
+				"regex-name": false,
+				"optional": false,
+				"strict": false,
+				"size": { "type": "integer" },
+				"data": { "$ref": "#/$defs/concrete-file-data" },
+				"contents": { "items": { "$ref": "#/$defs/concrete-node" } }
+			}
+		},
+		"concrete-file-data": {
+			"$comment": "concrete モードのファイルデータ。内容そのもの(実体)を表す項目は必須にし、部分一致や制約を表す項目を禁止する。file-data 自体の検証は tree-node 経由で別途行われる。",
+			"title": "実体ファイルデータ",
+			"description": "text: `text` 必須、`start` `regex` 禁止。json: `properties`(完全一致)必須、`contain` 禁止",
+			"allOf": [
+				{
+					"if": {
+						"required": ["schema"],
+						"properties": { "schema": { "const": "text" } }
+					},
+					"then": {
+						"required": ["text"],
+						"properties": { "start": false, "regex": false }
+					}
+				},
+				{
+					"if": {
+						"required": ["schema"],
+						"properties": { "schema": { "const": "json" } }
+					},
+					"then": {
+						"required": ["properties"],
+						"properties": { "contain": false }
+					}
+				}
 			]
 		},
-		"tree_report": {
+		"tree-node": {
+			"title": "ツリーノード",
+			"description": "ディレクトリ、ファイル、またはリンクのいずれかを表すノード。`type` の値で定義を振り分ける",
+			"type": "object",
+			"required": ["type"],
+			"properties": {
+				"type": {
+					"enum": ["directory", "file", "link"],
+					"title": "ノード種別",
+					"description": "ノードの種類。この値によって適用される定義が決まる"
+				}
+			},
+			"allOf": [
+				{
+					"if": {
+						"required": ["type"],
+						"properties": { "type": { "const": "directory" } }
+					},
+					"then": { "$ref": "#/$defs/directory" }
+				},
+				{
+					"if": {
+						"required": ["type"],
+						"properties": { "type": { "const": "file" } }
+					},
+					"then": { "$ref": "#/$defs/file" }
+				},
+				{
+					"if": {
+						"required": ["type"],
+						"properties": { "type": { "const": "link" } }
+					},
+					"then": { "$ref": "#/$defs/link" }
+				}
+			]
+		},
+		"tree-report": {
 			"type": "object",
 			"unevaluatedProperties": false,
+			"title": "スキャンレポート",
+			"description": "ディレクトリ構造の走査結果や統計情報",
 			"required": ["type", "directories", "files"],
 			"properties": {
 				"type": {
+					"type": "string",
 					"const": "report"
 				},
 				"directories": {
-					"minimum": 0,
 					"type": "integer",
-					"title": "走査したディレクトリの総数"
+					"minimum": 0,
+					"title": "総ディレクトリ数",
+					"description": "走査対象に含まれるディレクトリの合計数"
 				},
 				"files": {
-					"minimum": 0,
 					"type": "integer",
-					"title": "走査したファイルの総数"
-				}
-			}
-		},
-		"common": {
-			"type": "object",
-			"required": ["type", "name"],
-			"properties": {
-				"name": {
-					"type": "string",
-					"title": "ファイルまたはディレクトリの名前"
-				},
-				"size": {
 					"minimum": 0,
+					"title": "総ファイル数",
+					"description": "走査対象に含まれるファイルの合計数"
+				}
+			}
+		},
+		"size-spec": {
+			"title": "サイズ指定",
+			"description": "バイト単位。整数なら完全一致、`{min, max}` なら範囲指定(min以上・max以下)。min <= max の検証はツール側の領分",
+			"oneOf": [
+				{
 					"type": "integer",
-					"title": "ファイルサイズ"
+					"minimum": 0
 				},
-				"regex-name": {
-					"type": "boolean",
-					"default": false,
-					"title": "名前に正規表現を使う",
-					"description": "nameの例:`^[a-z][a-zA-Z0-9]+\\.ts$`"
-				},
-				"description": {
-					"type": "string",
-					"title": "ファイルオブジェクトの説明",
-					"x-extension": true
-				},
-				"detail": {
-					"type": "string",
-					"title": "ファイルオブジェクトの詳細",
-					"x-extension": true
-				},
-				"optional": {
-					"type": "boolean",
-					"default": false,
-					"title": "オプショナルか？",
-					"x-extension": true
-				}
-			}
-		},
-		"directory-prop": {
-			"type": "object",
-			"properties": {
-				"strict": {
-					"x-extension": true,
-					"type": "boolean",
-					"description": "trueならば`直下のcontents`がディレクトリの全要素を含むことを意味する"
-				},
-				"recursive-strict": {
-					"x-extension": true,
-					"type": "boolean",
-					"description": "`strict`プロパティの効果が以下のobjectへ再帰的に掛かる"
-				},
-				"contents": {
-					"type": "array",
-					"description": "サブディレクトリやファイル",
-					"items": {
-						"$ref": "#/$defs/tree_node"
-					}
-				}
-			}
-		},
-		"directory": {
-			"unevaluatedProperties": false,
-			"allOf": [
-				{ "$ref": "#/$defs/common" },
 				{
 					"type": "object",
-					"allOf": [{ "$ref": "#/$defs/directory-prop" }],
+					"x-extension": true,
+					"additionalProperties": false,
+					"minProperties": 1,
+					"title": "サイズ範囲",
+					"description": "下限・上限の少なくとも一方を指定する",
 					"properties": {
-						"type": {
-							"type": "string",
-							"const": "directory"
+						"min": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "下限",
+							"description": "この値以上"
+						},
+						"max": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "上限",
+							"description": "この値以下"
 						}
 					}
 				}
 			]
 		},
+		"common": {
+			"type": "object",
+			"title": "共通プロパティ",
+			"description": "ディレクトリ・ファイル・リンクで共通のプロパティ",
+			"required": ["type", "name"],
+			"properties": {
+				"type": {
+					"enum": ["directory", "file", "link"]
+				},
+				"name": {
+					"type": "string",
+					"minLength": 1,
+					"title": "ノード名",
+					"description": "ファイルまたはディレクトリの名称。`regex-name` がtrueの場合は正規表現。falseの場合は、パス区切り文字(`/` `\\`)を含まず、`.` `..` でもない単一の名前のみ許可する(正規化を優先)"
+				},
+				"size": { "$ref": "#/$defs/size-spec" },
+				"regex-name": {
+					"type": "boolean",
+					"default": false,
+					"x-extension": true,
+					"title": "正規表現による名前指定",
+					"description": "trueの場合、nameプロパティの値を正規表現として評価し、一致するノード(file/link/directory)が存在する場合に課す制約を記述します。存在自体は要求しないため、常にoptionalと同等です。そのため `optional` は併用不可です(指定自体を禁止)。例: `^[a-z][a-zA-Z0-9]+\\.ts$`"
+				},
+				"description": {
+					"type": "string",
+					"title": "概要",
+					"description": "このノードの役割や概要に関する説明",
+					"x-extension": true
+				},
+				"detail": {
+					"type": "string",
+					"title": "詳細情報",
+					"description": "このノードに関するより詳しい補足情報",
+					"x-extension": true
+				},
+				"optional": {
+					"type": "boolean",
+					"default": false,
+					"title": "必須要否 (オプショナル)",
+					"description": "trueの場合、対象ノードが存在しなくても検証を通過します。`regex-name: true` のノードは常にoptional相当のため、併用不可です(指定自体を禁止)",
+					"x-extension": true
+				}
+			},
+			"if": {
+				"required": ["regex-name"],
+				"properties": { "regex-name": { "const": true } }
+			},
+			"then": {
+				"properties": {
+					"name": { "format": "regex" },
+					"optional": false
+				}
+			},
+			"else": {
+				"properties": {
+					"name": { "pattern": "^(?!\\.{1,2}$)[^/\\\\]+$" }
+				}
+			}
+		},
+		"directory-body": {
+			"type": "object",
+			"title": "ディレクトリ固有プロパティ",
+			"properties": {
+				"strict": {
+					"x-extension": true,
+					"enum": ["self", "recursive", "off-self", "off-recursive"],
+					"title": "厳密な構成検証",
+					"description": "`contents` の厳密さ(定義にない子の存在を許可しないか)を指定します。省略時は親から継承した状態に従います。`self`: 自身の `contents` のみ厳密にする(配下への継承状態は変えない)。`recursive`: 自身と配下のすべてのサブディレクトリを厳密にする。`off-self`: 自身の `contents` のみ非厳密に上書きする(配下への継承状態は変えない)。`off-recursive`: 自身と配下のすべてを非厳密に上書きする(親から再帰で受けた効果を打ち消す)。厳密化の効果を受けた状態で `contents` が空なら「空ディレクトリ」を意味します"
+				},
+				"contents": {
+					"type": "array",
+					"title": "直下の子要素",
+					"description": "このディレクトリに含まれるサブディレクトリおよびファイルのリスト。厳密化の効果を受けている状態で空配列なら「空ディレクトリ」を意味します",
+					"items": { "$ref": "#/$defs/tree-node" }
+				}
+			}
+		},
+		"directory": {
+			"title": "ディレクトリオブジェクト",
+			"unevaluatedProperties": false,
+			"allOf": [
+				{ "$ref": "#/$defs/common" },
+				{ "$ref": "#/$defs/directory-body" },
+				{
+					"properties": {
+						"type": { "const": "directory" }
+					}
+				}
+			]
+		},
 		"link": {
+			"title": "リンクオブジェクト",
 			"unevaluatedProperties": false,
 			"required": ["target"],
 			"allOf": [
 				{ "$ref": "#/$defs/common" },
 				{
-					"type": "object",
 					"properties": {
-						"type": {
-							"type": "string",
-							"const": "link"
-						},
+						"type": { "const": "link" },
 						"target": {
 							"type": "string",
-							"description": "参照先"
+							"minLength": 1,
+							"title": "リンク先",
+							"description": "参照先のパス。実JSONの一番外側のディレクトリからの相対パス。リンク先の存在検証はツール側の責務で、スキーマでは検証しません"
 						}
 					}
 				}
 			]
 		},
 		"file": {
+			"title": "ファイルオブジェクト",
 			"unevaluatedProperties": false,
 			"allOf": [
 				{ "$ref": "#/$defs/common" },
 				{
-					"type": "object",
 					"properties": {
-						"type": {
-							"type": "string",
-							"const": "file"
-						},
+						"type": { "const": "file" },
 						"data": {
-							"type": "object",
-							"required": ["schema"],
-							"oneOf": [
-								{
-									"additionalProperties": false,
-									"properties": {
-										"schema": { "type": "string", "const": "text" },
-										"text": {
-											"type": "string",
-											"title": "ファイルの内容"
-										},
-										"start": {
-											"type": "string",
-											"title": "ファイルのprefix"
-										},
-										"regex": {
-											"type": "string",
-											"title": "ファイルが満たしている正規表現"
-										}
-									}
-								},
-								{
-									"additionalProperties": false,
-									"properties": {
-										"schema": { "type": "string", "const": "json" },
-										"properties": {
-											"title": "jsonが持つ完全なプロパティ"
-										},
-										"contain": {
-											"title": "jsonが含んでいるプロパティ"
-										}
-									}
-								}
-							]
+							"x-extension": true,
+							"$ref": "#/$defs/file-data"
 						}
 					}
 				}
 			]
+		},
+		"file-data": {
+			"type": "object",
+			"x-extension": true,
+			"title": "ファイルデータ",
+			"description": "ファイルの内容や形式に対する検証ルール。`schema` の値で定義を振り分ける",
+			"required": ["schema"],
+			"properties": {
+				"schema": { "enum": ["text", "json"] }
+			},
+			"allOf": [
+				{
+					"if": {
+						"required": ["schema"],
+						"properties": { "schema": { "const": "text" } }
+					},
+					"then": { "$ref": "#/$defs/text-data" }
+				},
+				{
+					"if": {
+						"required": ["schema"],
+						"properties": { "schema": { "const": "json" } }
+					},
+					"then": { "$ref": "#/$defs/json-data" }
+				}
+			]
+		},
+		"text-data": {
+			"title": "テキストファイル定義",
+			"description": "`text` / `start` / `regex` を複数指定した場合は、すべてを満たす必要があります(AND)",
+			"type": "object",
+			"unevaluatedProperties": false,
+			"x-extension": true,
+			"properties": {
+				"schema": { "const": "text" },
+				"text": {
+					"type": "string",
+					"title": "完全一致テキスト",
+					"description": "ファイルが保持すべき正確なテキスト内容"
+				},
+				"start": {
+					"type": "string",
+					"title": "開始文字列 (プレフィックス)",
+					"description": "ファイル内容がこの文字列から始まることを検証します"
+				},
+				"regex": {
+					"type": "string",
+					"format": "regex",
+					"title": "内容の正規表現",
+					"description": "ファイル内容が満たすべき正規表現パターン"
+				}
+			}
+		},
+		"json-data": {
+			"title": "JSONファイル定義",
+			"description": "JSONファイルのトップレベルのプロパティに対する制約",
+			"type": "object",
+			"unevaluatedProperties": false,
+			"x-extension": true,
+			"properties": {
+				"schema": { "const": "json" },
+				"properties": {
+					"type": "object",
+					"title": "完全プロパティ定義",
+					"description": "データのトップレベルが、ここで指定したプロパティ・値と完全に一致する(過不足がない)ことを要求します"
+				},
+				"contain": {
+					"type": "object",
+					"title": "部分プロパティ定義",
+					"description": "データのトップレベルに、ここで指定したプロパティが存在し、その値も一致することを要求します(例: `$schema` の値を制約できます)。指定していないプロパティは不問です"
+				}
+			}
 		}
 	}
 }
