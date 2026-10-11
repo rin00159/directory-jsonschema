@@ -5,6 +5,7 @@
 	"description": "ツール非依存にディレクトリ構造をJSONで表現するためのJSONSchema。`tree -J`ベースだが互換性はない//todo 現在は開発中で ripo-schema を最優先で完成させる。",
 	"author": "Rintaro Osumi <0sumirintaro@gmail.com>",
 	"license": "MIT",
+	"packageManager": "pnpm@12.10.1+sha512.ba40a37eb1a370d60fea8c4cf1d364c13bcccef518e98ad2bcee954f539d38da37458e58261a3fa55e06523450ea0ffff9f497b135be41f2c15c1642bacace6c",
 	"homepage": "https://github.com/rin00159/directory-jsonschema#readme",
 	"bugs": {
 		"url": "https://github.com/rin00159/directory-jsonschema/issues"
@@ -28,5 +29,11 @@
 		"package.json",
 		"DIRDESC.yaml",
 		"src"
-	]
+	],
+	"devDependencies": {
+		"ajv": "^8.20.0",
+		"ajv-formats": "^3.0.1",
+		"typescript": "^7.0.2",
+		"vitest": "^5.0.3"
+	}
 }

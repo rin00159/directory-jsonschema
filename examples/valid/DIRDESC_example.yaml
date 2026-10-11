@@ -1,6 +1,8 @@
 # yaml-language-server: $schema=/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct
 strict: recursive
 contents:
+  - type: file
+    name: first.txt
   - type: directory
     name: src
     contents:

@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct
-strict: recursive
+description: 意味:内容が制約された DIRDESC.yaml を含む
 contents:
   - type: file
     name: DIRDESC.yaml

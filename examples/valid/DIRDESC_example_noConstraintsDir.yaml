@@ -1,6 +1,5 @@
 # yaml-language-server: $schema=/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct
-strict: recursive
+description: 意味:これ自体が指すものがdirであること以外に制約なし。
+strict: self
 contents:
-  - type: file
-    name: "^[a-z][a-zA-Z0-9]+\\.ts$"
-    regex-name: true
+  - regex-name: true
