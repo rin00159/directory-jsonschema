@@ -1,0 +1,40 @@
+{
+	"$schema": "./schema/json-examples_directory.schema.json",
+	"jsons": [
+		{
+			"group": "basic",
+			"label": "ルート配列: dir + report",
+			"valid": true,
+			"instance": [
+				{
+					"type": "directory",
+					"name": "src",
+					"contents": [
+						{
+							"type": "file",
+							"size": 1,
+							"name": "a"
+						}
+					]
+				},
+				{
+					"type": "report",
+					"directories": 1,
+					"files": 1
+				}
+			]
+		},
+		{
+			"group": "basic",
+			"label": "ルート配列: name='.' (tree -J生出力) は不可",
+			"valid": false,
+			"instance": [
+				{
+					"type": "directory",
+					"name": ".",
+					"contents": []
+				}
+			]
+		}
+	]
+}

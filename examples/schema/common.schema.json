@@ -1,0 +1,42 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$defs": {
+		"group": {
+			"oneOf": [
+				{
+					"const": "basic",
+					"title": "Basic Group",
+					"description": "基本的な用途のJSON。代表例"
+				},
+
+				{
+					"const": "deprecated",
+					"title": "Deprecated Group",
+					"description": "非推奨となったJSON。{valid:false}での運用が想定される。"
+				},
+				{
+					"const": "deprecated:property",
+					"title": "Deprecated Property Group",
+					"description": "非推奨となったプロパティについてのJSON。{valid:false}での運用が想定される。"
+				},
+
+				{
+					"const": "property",
+					"title": "Property Group",
+					"description": "プロパティ/node についてのexample",
+					"$comment": "pointerを適切に利用していて、groupを処理で重視していない場合は、suffixを適切に割り当てなくても支障なし"
+				},
+				{
+					"const": "property:root",
+					"title": "Property Group",
+					"description": "root プロパティ/node についてのexample"
+				},
+				{
+					"const": "property:defs",
+					"title": "Property Group",
+					"description": "defsに定義された プロパティ/node についてのexample"
+				}
+			]
+		}
+	}
+}

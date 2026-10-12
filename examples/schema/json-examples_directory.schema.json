@@ -1,0 +1,46 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"allOf": [
+		{ "$ref": "../../../json-examples-schema/src/json-examples.schema.json" }
+	],
+	"$defs": {
+		"_hook_valid": {
+			"$ref": "../../src/directory.schema.json"
+		}
+	},
+	"type": "object",
+	"properties": {
+		"jsons": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"group": {
+						"$ref": "./common.schema.json#/$defs/group"
+					}
+				},
+				"if": {
+					"properties": {
+						"valid": { "const": true }
+					}
+				},
+				"then": {
+					"properties": {
+						"instance": {
+							"$ref": "#/$defs/_hook_valid"
+						}
+					}
+				},
+				"else": {
+					"properties": {
+						"instance": {
+							"not": {
+								"$ref": "#/$defs/_hook_valid"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

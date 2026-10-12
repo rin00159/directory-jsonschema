@@ -1,0 +1,2451 @@
+{
+	"$schema": "./schema/json-examples_directory_defs-struct.schema.json",
+	"jsons": [
+		{
+			"group": "basic",
+			"label": "DIRDESC例: contents + json contain",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"description": "ディレクトリ構造説明",
+						"data": {
+							"schema": "json",
+							"contain": {
+								"$schema": "/x/package.cdx.schema.json"
+							}
+						},
+						"name": "DIRDESC.yaml"
+					}
+				]
+			}
+		},
+		{
+			"group": "basic",
+			"label": "struct: $schema/report/description",
+			"valid": true,
+			"instance": {
+				"$schema": "x",
+				"description": "d",
+				"report": {
+					"type": "report",
+					"directories": 1,
+					"files": 2
+				}
+			}
+		},
+		{
+			"group": "basic",
+			"label": "struct: 未知プロパティ",
+			"valid": false,
+			"instance": {
+				"foo": 1
+			}
+		},
+		{
+			"group": "basic",
+			"label": "struct: name は持てない(ルートは名前を持たない)",
+			"valid": false,
+			"instance": {
+				"name": "x"
+			}
+		},
+		{
+			"group": "basic",
+			"label": "struct: type は持てない",
+			"valid": false,
+			"instance": {
+				"type": "directory"
+			}
+		},
+		{
+			"group": "basic",
+			"label": "未知のtype",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "socket",
+						"name": "s"
+					}
+				]
+			}
+		},
+		{
+			"group": "basic",
+			"label": "空のノード {} は有効(条件なし)",
+			"valid": true,
+			"instance": {
+				"contents": [{}]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "type 省略",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "type 配列 [directory,file]",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": ["directory", "file"],
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "type 配列: 空は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": [],
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "type 配列: 重複は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": ["file", "file"]
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "type 配列: 不明な種別",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": ["file", "pipe"]
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "type 配列[file]に contents は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": ["file"],
+						"contents": []
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "type 配列[directory,file]に contents と data は可",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": ["directory", "file"],
+						"contents": [],
+						"data": {
+							"schema": "text",
+							"const": "x"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "type 省略で contents / data / target すべて可",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"name": "a",
+						"contents": [],
+						"data": {
+							"schema": "text",
+							"const": "x"
+						},
+						"target": "t"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "file に contents は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"contents": [],
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "directory に data は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "directory",
+						"data": {
+							"schema": "text",
+							"const": "x"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "directory に target は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "directory",
+						"target": "t",
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "link は target 無しでも可(述語)",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "link",
+						"name": "l"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/type",
+			"label": "link に target あり",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "link",
+						"name": "l",
+						"target": "src/a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "リテラル名",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": "a.ts"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "'.gitignore' は可",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": ".gitignore"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "'..a' は可",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": "..a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "'.' は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": "."
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "'..' は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": ".."
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "'src/foo' は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": "src/foo"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "'a\\b' は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": "a\\b"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "空文字は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": ""
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name が数値は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": 1
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: pattern",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"pattern": "^[a-z]+\\.ts$"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: pattern はパス区切りを含めても可",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"pattern": "src/.*"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: pattern が不正な正規表現",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"pattern": "(["
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: const リテラル",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"const": "a"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: const に 'a/b' は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"const": "a/b"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: enum リテラル",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"enum": ["a", "b"]
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: enum に '..' を含むと不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"enum": ["a", ".."]
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: minLength/maxLength",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"minLength": 1,
+							"maxLength": 8
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: 不明キーは不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"foo": 1
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/common/name",
+			"label": "name: 空オブジェクトは可(条件なし)",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": {}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"name": "size",
+			"label": "size 整数",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"size": 10,
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"name": "size",
+			"label": "size {min}",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"size": {
+							"min": 1
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"name": "size",
+			"label": "size {min,max}",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"size": {
+							"min": 1,
+							"max": 9
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"name": "size",
+			"label": "size {} は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"size": {},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"name": "size",
+			"label": "size 不明キー",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"size": {
+							"min": 1,
+							"foo": 2
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"name": "size",
+			"label": "size 文字列は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"size": "10",
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"name": "size",
+			"label": "size 負数は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"size": -1,
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"name": "size",
+			"label": "directory も size を持てる",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "directory",
+						"size": 4096,
+						"name": "d",
+						"contents": []
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "正常: type と name",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"size": 10,
+						"name": "a.ts"
+					},
+					{
+						"type": "directory",
+						"size": 4096,
+						"name": "d"
+					},
+					{
+						"type": "link",
+						"name": "l"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "正常: data は const 無しでも可",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "正常: data は const 付き",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text",
+							"const": "hello"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "正常: json properties",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "json",
+							"properties": {
+								"a": 1
+							}
+						},
+						"name": "a.json"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "正常: link に target 無しでも可",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "link",
+						"name": "l"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "正常: 空 contents",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": []
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "正常: 深い階層",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "directory",
+						"name": "a",
+						"contents": [
+							{
+								"type": "directory",
+								"name": "b",
+								"contents": [
+									{
+										"type": "file",
+										"size": 1,
+										"name": "c"
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "正常: report/description 付き",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"description": "d",
+				"report": {
+					"type": "report",
+					"directories": 0,
+					"files": 1
+				}
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "補足を許可: size の範囲",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"size": {
+							"min": 1
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "補足を許可: name 以外の制約系 data (pattern/contain/json-schema)",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text",
+							"const": "x",
+							"pattern": "x"
+						},
+						"name": "a"
+					},
+					{
+						"type": "file",
+						"data": {
+							"schema": "json",
+							"properties": {},
+							"contain": {
+								"a": 1
+							},
+							"json-schema": {
+								"type": "object"
+							}
+						},
+						"name": "b.json"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "補足を許可: 配列系 (minItems/contains/items/const/enum)",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "directory",
+						"minItems": 1,
+						"maxItems": 1,
+						"contains": {
+							"type": "file",
+							"name": "x"
+						},
+						"minContains": 1,
+						"items": {
+							"type": "file",
+							"name": "x"
+						},
+						"const": [
+							{
+								"type": "file",
+								"name": "x"
+							}
+						],
+						"enum": [
+							[
+								{
+									"type": "file",
+									"name": "x"
+								}
+							]
+						],
+						"name": "d",
+						"contents": [
+							{
+								"type": "file",
+								"name": "x"
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "補足を許可: ルートの配列系",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"minItems": 1
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "type 必須",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "name 必須",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "type 配列は不可",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": ["file", "link"],
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "name のスキーマ指定は不可",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": {
+							"pattern": "^a$"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "name のリテラル制限は継続('a/b')",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a/b"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "深い階層で type 欠落",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "directory",
+						"name": "a",
+						"contents": [
+							{
+								"name": "b"
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "allOf は不可(ノード)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"allOf": [
+							{
+								"name": "a"
+							}
+						],
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "allOf は不可(ルート)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"allOf": [
+					{
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "anyOf は不可(ノード)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"anyOf": [
+							{
+								"name": "a"
+							}
+						],
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "anyOf は不可(ルート)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"anyOf": [
+					{
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "oneOf は不可(ノード)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"oneOf": [
+							{
+								"name": "a"
+							}
+						],
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "oneOf は不可(ルート)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"oneOf": [
+					{
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "not は不可(ノード)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"not": {
+							"name": "a"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "not は不可(ルート)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"not": {
+					"name": "a"
+				}
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "if は不可(ノード)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"if": {
+							"name": "a"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "if は不可(ルート)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"if": {
+					"name": "a"
+				}
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "then は不可(ノード)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"then": {
+							"name": "a"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "then は不可(ルート)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"then": {
+					"name": "a"
+				}
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "else は不可(ノード)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"else": {
+							"name": "a"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "else は不可(ルート)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"else": {
+					"name": "a"
+				}
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "$ref は不可(ノード)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a",
+						"$ref": "#/$defs/x"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "$defs は不可(ノード)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "directory",
+						"$defs": {
+							"x": {
+								"type": "file",
+								"name": "a"
+							}
+						},
+						"name": "a",
+						"contents": []
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "$defs は不可(ルート)",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"$defs": {
+					"x": {
+						"type": "file",
+						"name": "a"
+					}
+				}
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "深い階層の論理演算子",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "directory",
+						"name": "a",
+						"contents": [
+							{
+								"type": "directory",
+								"name": "b",
+								"contents": [
+									{
+										"type": "file",
+										"allOf": [
+											{
+												"size": 1
+											}
+										],
+										"name": "c"
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "concrete:false なら論理演算子も可",
+			"valid": true,
+			"instance": {
+				"concrete": false,
+				"contents": [
+					{
+						"type": "file",
+						"allOf": [
+							{
+								"size": 1
+							}
+						],
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"pointer": "/concrete",
+			"label": "concrete 省略なら従来どおり",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"anyOf": [
+							{
+								"size": 1
+							}
+						],
+						"name": {
+							"pattern": "x"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "text: const",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text",
+							"const": "hello"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "text: pattern (前方一致)",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text",
+							"pattern": "^#!"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "text: 複数指定(AND)",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text",
+							"const": "x",
+							"pattern": "x",
+							"minLength": 1
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "text: 不正な正規表現",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text",
+							"pattern": "(["
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "text: 未知キー",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text",
+							"foo": 1
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "text: contain は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text",
+							"contain": {}
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "text: schema のみ",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "text"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "json: properties + contain",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "json",
+							"properties": {
+								"a": 1
+							},
+							"contain": {
+								"b": 2
+							}
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "json: contain の値つき($schema)",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "json",
+							"contain": {
+								"$schema": "x"
+							}
+						},
+						"name": "a.json"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "json: contain が文字列は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "json",
+							"contain": "x"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "json: json-schema",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "json",
+							"json-schema": {
+								"type": "object",
+								"required": ["a"]
+							}
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "json: json-schema が不正(type が数値)",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "json",
+							"json-schema": {
+								"type": 5
+							}
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "json: const は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "json",
+							"const": "x"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "data: schema 必須",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"const": "x"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/file-data",
+			"label": "data: 未知の schema",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"data": {
+							"schema": "yaml"
+						},
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/reference",
+			"label": "struct: $defs と $ref",
+			"valid": true,
+			"instance": {
+				"$defs": {
+					"ts-file": {
+						"type": "file",
+						"size": {
+							"max": 10240
+						},
+						"name": {
+							"pattern": "\\.ts$"
+						}
+					}
+				},
+				"contents": [
+					{
+						"$ref": "#/$defs/ts-file"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/reference",
+			"label": "$ref と他の条件を併記",
+			"valid": true,
+			"instance": {
+				"$defs": {
+					"x": {
+						"type": "file",
+						"name": "a"
+					}
+				},
+				"contents": [
+					{
+						"$ref": "#/$defs/x",
+						"size": 1
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/reference",
+			"label": "再帰的な定義(自己参照)",
+			"valid": true,
+			"instance": {
+				"$defs": {
+					"tree": {
+						"type": "directory",
+						"items": {
+							"$ref": "#/$defs/tree"
+						}
+					}
+				},
+				"$ref": "#/$defs/tree"
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/reference",
+			"label": "$defs の値が不正なノード",
+			"valid": false,
+			"instance": {
+				"$defs": {
+					"x": {
+						"foo": 1
+					}
+				}
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/reference",
+			"label": "$defs の値がノードでない",
+			"valid": false,
+			"instance": {
+				"$defs": {
+					"x": 1
+				}
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/reference",
+			"label": "$ref が文字列でない",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"$ref": 1
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/reference",
+			"label": "$ref が空文字",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"$ref": ""
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/reference",
+			"label": "ノード内にも $defs を置ける",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "directory",
+						"$defs": {
+							"x": {
+								"type": "file",
+								"name": "a"
+							}
+						},
+						"name": "d",
+						"contents": []
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/reference",
+			"label": "logic の中でも $ref",
+			"valid": true,
+			"instance": {
+				"$defs": {
+					"x": {
+						"type": "file",
+						"name": "a"
+					}
+				},
+				"allOf": [
+					{
+						"$ref": "#/$defs/x"
+					}
+				]
+			}
+		},
+
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "directory: allOf で配列条件を合成",
+			"valid": true,
+			"instance": {
+				"allOf": [
+					{
+						"contains": {
+							"type": "file",
+							"name": "a"
+						}
+					},
+					{
+						"contains": {
+							"type": "file",
+							"name": "b"
+						},
+						"minContains": 0
+					},
+					{
+						"maxItems": 5
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "directory: anyOf",
+			"valid": true,
+			"instance": {
+				"anyOf": [
+					{
+						"contains": {
+							"type": "file",
+							"name": "a"
+						}
+					},
+					{
+						"contains": {
+							"type": "file",
+							"name": "b"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "directory: oneOf",
+			"valid": true,
+			"instance": {
+				"oneOf": [
+					{
+						"contains": {
+							"type": "file",
+							"name": "a"
+						}
+					},
+					{
+						"contains": {
+							"type": "file",
+							"name": "b"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "directory: not",
+			"valid": true,
+			"instance": {
+				"not": {
+					"type": "directory",
+					"contains": {
+						"type": "file",
+						"name": "tmp"
+					}
+				}
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "file: allOf / anyOf",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"anyOf": [
+							{
+								"size": 1
+							},
+							{
+								"size": 2
+							}
+						],
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "link: oneOf",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "link",
+						"name": "l",
+						"oneOf": [
+							{
+								"target": "a"
+							},
+							{
+								"target": "b"
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "allOf: 空配列は不可",
+			"valid": false,
+			"instance": {
+				"allOf": []
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "allOf: 要素が不正なノード",
+			"valid": false,
+			"instance": {
+				"allOf": [
+					{
+						"foo": 1
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "not: 配列は不可(単一ノード)",
+			"valid": false,
+			"instance": {
+				"not": [
+					{
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "if / then / else",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"if": {
+							"name": {
+								"pattern": "\\.ts$"
+							}
+						},
+						"then": {
+							"size": {
+								"max": 10240
+							}
+						},
+						"else": {
+							"size": {
+								"min": 1
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "if のみ",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"if": {
+							"name": "a"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "then のみ(if 無しは無視される=構文上は可)",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"then": {
+							"name": "a"
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "if が不正なノード",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"if": {
+							"foo": 1
+						}
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "logic は struct(ルート)でも使える",
+			"valid": true,
+			"instance": {
+				"if": {
+					"minItems": 1
+				},
+				"then": {
+					"maxItems": 9
+				}
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "logic の入れ子",
+			"valid": true,
+			"instance": {
+				"allOf": [
+					{
+						"anyOf": [
+							{
+								"not": {
+									"contains": {
+										"type": "file",
+										"name": "x"
+									}
+								}
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/logic",
+			"label": "旧 jsonbase 形式の要素(contains に整数)は不可",
+			"valid": false,
+			"instance": {
+				"allOf": [
+					{
+						"contains": 1
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "minItems / maxItems",
+
+			"valid": true,
+			"instance": {
+				"minItems": 1,
+				"maxItems": 3
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "minItems 負数は不可",
+
+			"valid": false,
+			"instance": {
+				"minItems": -1
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "items: ノード",
+
+			"valid": true,
+			"instance": {
+				"items": {
+					"type": "file",
+					"size": {
+						"max": 10240
+					},
+					"name": {
+						"pattern": "\\.ts$"
+					}
+				}
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "items: 配列は不可(単一ノード)",
+
+			"valid": false,
+			"instance": {
+				"items": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "contains + minContains:0 + maxContains",
+
+			"valid": true,
+			"instance": {
+				"contains": {
+					"type": "file",
+					"name": "a"
+				},
+				"minContains": 0,
+				"maxContains": 2
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "minContains 負数は不可",
+
+			"valid": false,
+			"instance": {
+				"contains": {
+					"type": "file",
+					"name": "a"
+				},
+				"minContains": -1
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "contains のノード内の未知プロパティ",
+
+			"valid": false,
+			"instance": {
+				"contains": {
+					"foo": 1
+				}
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "const: ノード配列",
+
+			"valid": true,
+			"instance": {
+				"const": [
+					{
+						"type": "file",
+						"name": "a"
+					},
+					{
+						"type": "directory",
+						"name": "b",
+						"contents": []
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "const: 配列でない値は不可",
+
+			"valid": false,
+			"instance": {
+				"const": "x"
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "const: 要素が不正なノード",
+
+			"valid": false,
+			"instance": {
+				"const": [
+					{
+						"foo": 1
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "enum: 配列の配列",
+
+			"valid": true,
+			"instance": {
+				"enum": [
+					[
+						{
+							"type": "file",
+							"name": "a"
+						}
+					],
+					[
+						{
+							"type": "file",
+							"name": "b"
+						},
+						{
+							"type": "file",
+							"name": "c"
+						}
+					]
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "enum: 要素が配列でない",
+
+			"valid": false,
+			"instance": {
+				"enum": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "contents + minItems + maxItems 併用",
+
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": "a"
+					}
+				],
+				"minItems": 1,
+				"maxItems": 1
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "contents: [] (空ディレクトリ)",
+
+			"valid": true,
+			"instance": {
+				"contents": []
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "子ディレクトリにも配列系",
+
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "directory",
+						"minItems": 1,
+						"contains": {
+							"type": "file",
+							"name": "x"
+						},
+						"name": "d"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "配列系を file に付けると不可",
+
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"minItems": 1,
+						"name": "a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"pointer": "/$defs/directory-body",
+			"name": "JSONSchema-Array base",
+			"label": "type 省略ノードに contains は可",
+
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"contains": {
+							"type": "file",
+							"name": "a"
+						}
+					}
+				]
+			}
+		}
+	]
+}
