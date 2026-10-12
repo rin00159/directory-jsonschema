@@ -1,9 +1,0 @@
-# yaml-language-server: $schema=/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct
-description: 意味:ファイルの内容は半角数字のみ
-strict: self
-contents:
-  - type: file
-    description: this is file
-    data:
-      schema: text
-      regex: ^\d+$

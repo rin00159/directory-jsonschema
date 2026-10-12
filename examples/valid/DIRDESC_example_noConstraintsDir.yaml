@@ -1,5 +1,0 @@
-# yaml-language-server: $schema=/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct
-description: 意味:これ自体が指すものがdirであること以外に制約なし。
-strict: self
-contents:
-  - regex-name: true

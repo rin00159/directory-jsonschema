@@ -1,0 +1,11 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$ref": "./json-examples.schema.json",
+	"$id": "dir-json-examples.schema",
+	"$defs": {
+		"customItemSchema": {
+			"$dynamicAnchor": "schema",
+			"$ref": "/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct"
+		}
+	}
+}

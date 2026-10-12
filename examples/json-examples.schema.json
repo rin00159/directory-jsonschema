@@ -1,0 +1,12 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://example.com/json-examples.schema.json",
+	"title": "json-examples.schema",
+	"type": "object",
+	"properties": {
+		"jsons": {
+			"type": "array",
+			"items": { "$dynamicRef": "#schema", "$dynamicAnchor": "schema" }
+		}
+	}
+}

@@ -1,6 +1,6 @@
 {
 	"$schema": "/Users/rin/mydev/schema/jsonschema-extends-expansion/src/nouse_dynamicAnchor/extends.schema.json",
-	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者では実体を意味定義に持たない記述(regex-name / optional / strict / sizeの範囲指定 / data の start・regex・contain)は不要なため、#/$defs/struct の concrete: true で禁止できる。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。",
+	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)を禁止し、type(単一)と name(リテラル)を必須とする。それ以外の制約系プロパティは実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / contains / items / minItems など)が決める。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。x-strict-extends,x-extension については /Users/rin/mydev/schema/jsonschema-extends-expansion で定義されている",
 	"title": "Directory Structure Schema",
 	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。",
 	"type": "array",
@@ -13,12 +13,12 @@
 	},
 	"$defs": {
 		"struct": {
-			"$comment": "concrete: true のとき、contents 配下の全ノードに #/$defs/concrete-node を適用する。JSON Schemaには親のフラグを子へ伝播する標準機構がないため、再帰的な concrete-node 定義で実現している。",
+			"$comment": "concrete: true のとき、contents 配下の全ノードに #/$defs/concrete-node を適用し、ルート自身にも論理演算子と $ref・$defs の禁止を課す。JSON Schemaには親のフラグを子へ伝播する標準機構がないため、再帰的な concrete-node 定義で実現している。",
 			"type": "object",
 			"unevaluatedProperties": false,
 			"x-extension": true,
 			"title": "ディレクトリ構造定義",
-			"description": "ルートディレクトリの構造やメタデータを定義するオブジェクト。`$schema` に `#/$defs/struct` を指定して使う",
+			"description": "ルートディレクトリの構造やメタデータを定義するオブジェクト。`$schema` に `#/$defs/struct` を指定して使う。ルートはディレクトリ固有プロパティ(`directory-body`)と参照(`$ref` / `$defs`)を持てる",
 			"properties": {
 				"$schema": {
 					"type": "string",
@@ -35,97 +35,107 @@
 					"type": "boolean",
 					"default": false,
 					"title": "実体記述モード",
-					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱い、実体を意味定義に持たない記述を自身と配下のすべてのノードで禁止します。禁止対象: `regex-name`、`optional`、`strict`、`size` の範囲指定、`data` の部分一致・制約系(`start`、`regex`、`contain`)。`data` は内容そのもの(text: `text` / json: `properties`)の指定を必須とします"
+					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)と `$ref` / `$defs` を禁止し、配下のノードには `type`(単一)と `name`(リテラル)を必須とします。それ以外のプロパティは、実体への補足として自由に併記できます。なお禁止は実体ノード(ルートと `contents` の木)に対するもので、`contains` / `items` など述語を値に取るプロパティの内部は対象外です"
 				}
 			},
-			"allOf": [{ "$ref": "#/$defs/directory-body" }],
+			"allOf": [
+				{ "$ref": "#/$defs/directory-body" },
+				{ "$ref": "#/$defs/reference" }
+			],
 			"if": {
 				"required": ["concrete"],
 				"properties": { "concrete": { "const": true } }
 			},
 			"then": {
 				"properties": {
-					"strict": false,
+					"allOf": false,
+					"anyOf": false,
+					"oneOf": false,
+					"not": false,
+					"if": false,
+					"then": false,
+					"else": false,
+					"$ref": false,
+					"$defs": false,
 					"contents": { "items": { "$ref": "#/$defs/concrete-node" } }
 				}
 			}
 		},
 		"concrete-node": {
-			"$comment": "tree-node に加えて、実体を意味定義に持たない記述を禁止する。contents を再帰的に辿ることで、struct の concrete フラグを配下全体へ伝播させる。",
+			"$comment": "tree-node に加えて、実体を特定する type(単一)と name(リテラル)を必須にし、論理演算子と $ref・$defs を禁止する。contents を再帰的に辿ることで、struct の concrete フラグを配下全体へ伝播させる。",
 			"title": "実体ノード",
-			"description": "concrete モードで許可されるノード。`regex-name`・`optional`・`strict` は指定自体を禁止、`size` は整数(完全一致)のみ、`data` は実体ファイルデータ(`concrete-file-data`)に従う",
+			"description": "concrete モードで許可されるノード。`type`(単一)と `name`(リテラル)は必須。論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)と `$ref` / `$defs` は指定不可。それ以外のプロパティは補足として任意に併記できる",
 			"$ref": "#/$defs/tree-node",
+			"required": ["type", "name"],
 			"properties": {
-				"regex-name": false,
-				"optional": false,
-				"strict": false,
-				"size": { "type": "integer" },
-				"data": { "$ref": "#/$defs/concrete-file-data" },
+				"type": { "$ref": "#/$defs/node-kind" },
+				"name": { "$ref": "#/$defs/name-literal" },
+				"allOf": false,
+				"anyOf": false,
+				"oneOf": false,
+				"not": false,
+				"if": false,
+				"then": false,
+				"else": false,
+				"$ref": false,
+				"$defs": false,
 				"contents": { "items": { "$ref": "#/$defs/concrete-node" } }
 			}
 		},
-		"concrete-file-data": {
-			"$comment": "concrete モードのファイルデータ。内容そのもの(実体)を表す項目は必須にし、部分一致や制約を表す項目を禁止する。file-data 自体の検証は tree-node 経由で別途行われる。",
-			"title": "実体ファイルデータ",
-			"description": "text: `text` 必須、`start` `regex` 禁止。json: `properties`(完全一致)必須、`contain` 禁止",
+		"tree-node": {
+			"$comment": "ノードは「実在するノードに対する述語」。プロパティを省略した部分は条件なし(常に成立)。種別固有のプロパティは、その種別でないノードに対しては成立扱い(JSON Schemaで型の違うキーワードが無視されるのと同じ)。そのため not と併用する場合は type を併記すること。",
+			"title": "ツリーノード",
+			"description": "ディレクトリ、ファイル、またはリンクを表すノード。共通プロパティ(`common`)に加え、`type` が取り得る種別に応じた固有プロパティ(`directory-body` / `file-body` / `link-body`)が許可される。`type` を省略したノードはすべての種別に適用され、固有プロパティもすべて許可される",
+			"type": "object",
+			"unevaluatedProperties": false,
 			"allOf": [
+				{ "$ref": "#/$defs/common" },
 				{
-					"if": {
-						"required": ["schema"],
-						"properties": { "schema": { "const": "text" } }
-					},
-					"then": {
-						"required": ["text"],
-						"properties": { "start": false, "regex": false }
-					}
+					"if": { "$ref": "#/$defs/applies-directory" },
+					"then": { "$ref": "#/$defs/directory-body" }
 				},
 				{
-					"if": {
-						"required": ["schema"],
-						"properties": { "schema": { "const": "json" } }
-					},
-					"then": {
-						"required": ["properties"],
-						"properties": { "contain": false }
-					}
+					"if": { "$ref": "#/$defs/applies-file" },
+					"then": { "$ref": "#/$defs/file-body" }
+				},
+				{
+					"if": { "$ref": "#/$defs/applies-link" },
+					"then": { "$ref": "#/$defs/link-body" }
 				}
 			]
 		},
-		"tree-node": {
-			"title": "ツリーノード",
-			"description": "ディレクトリ、ファイル、またはリンクのいずれかを表すノード。`type` の値で定義を振り分ける",
-			"type": "object",
-			"required": ["type"],
+		"applies-directory": {
+			"$comment": "type が省略されているか、directory を含む場合に成立する",
 			"properties": {
 				"type": {
-					"enum": ["directory", "file", "link"],
-					"title": "ノード種別",
-					"description": "ノードの種類。この値によって適用される定義が決まる"
+					"anyOf": [
+						{ "const": "directory" },
+						{ "type": "array", "contains": { "const": "directory" } }
+					]
 				}
-			},
-			"allOf": [
-				{
-					"if": {
-						"required": ["type"],
-						"properties": { "type": { "const": "directory" } }
-					},
-					"then": { "$ref": "#/$defs/directory" }
-				},
-				{
-					"if": {
-						"required": ["type"],
-						"properties": { "type": { "const": "file" } }
-					},
-					"then": { "$ref": "#/$defs/file" }
-				},
-				{
-					"if": {
-						"required": ["type"],
-						"properties": { "type": { "const": "link" } }
-					},
-					"then": { "$ref": "#/$defs/link" }
+			}
+		},
+		"applies-file": {
+			"$comment": "type が省略されているか、file を含む場合に成立する",
+			"properties": {
+				"type": {
+					"anyOf": [
+						{ "const": "file" },
+						{ "type": "array", "contains": { "const": "file" } }
+					]
 				}
-			]
+			}
+		},
+		"applies-link": {
+			"$comment": "type が省略されているか、link を含む場合に成立する",
+			"properties": {
+				"type": {
+					"anyOf": [
+						{ "const": "link" },
+						{ "type": "array", "contains": { "const": "link" } }
+					]
+				}
+			}
 		},
 		"tree-report": {
 			"type": "object",
@@ -152,9 +162,9 @@
 				}
 			}
 		},
-		"size-spec": {
-			"title": "サイズ指定",
-			"description": "バイト単位。整数なら完全一致、`{min, max}` なら範囲指定(min以上・max以下)。min <= max の検証はツール側の領分",
+		"int-range": {
+			"title": "整数または範囲指定",
+			"description": "整数なら完全一致、`{min, max}` なら範囲指定(min以上・max以下)。min <= max の検証はツール側の領分",
 			"oneOf": [
 				{
 					"type": "integer",
@@ -165,7 +175,7 @@
 					"x-extension": true,
 					"additionalProperties": false,
 					"minProperties": 1,
-					"title": "サイズ範囲",
+					"title": "範囲",
 					"description": "下限・上限の少なくとも一方を指定する",
 					"properties": {
 						"min": {
@@ -184,28 +194,118 @@
 				}
 			]
 		},
+		"string-schema": {
+			"type": "object",
+			"$comment": "このschemaは https://json-schema.org/draft/2020-12/schema において type:string で意味を持つプロパティから抽出した定義である",
+			"title": "文字列スキーマ",
+			"description": "文字列に対する制約。指定した制約はすべて満たす必要がある(AND)",
+			"properties": {
+				"enum": {
+					"type": "array",
+					"items": true
+				},
+				"const": true,
+				"format": {
+					"type": "string"
+				},
+				"minLength": {
+					"type": "integer",
+					"minimum": 0,
+					"default": 0
+				},
+				"maxLength": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"pattern": {
+					"type": "string",
+					"format": "regex"
+				},
+				"contentMediaType": {
+					"type": "string"
+				},
+				"contentEncoding": {
+					"type": "string"
+				}
+			}
+		},
+		"node-kind": {
+			"enum": ["directory", "file", "link"],
+			"title": "ノード種別",
+			"description": "ノードの種類"
+		},
+		"node-type": {
+			"title": "ノード種別の指定",
+			"description": "単一の種別、または複数の種別の配列(いずれかに該当するノードを表す)。省略した場合はすべての種別に該当する",
+			"oneOf": [
+				{ "$ref": "#/$defs/node-kind" },
+				{
+					"type": "array",
+					"x-extension": true,
+					"minItems": 1,
+					"uniqueItems": true,
+					"items": { "$ref": "#/$defs/node-kind" }
+				}
+			]
+		},
+		"name-literal": {
+			"type": "string",
+			"minLength": 1,
+			"pattern": "^(?!\\.{1,2}$)[^/\\\\]+$",
+			"title": "名前(リテラル)",
+			"description": "パス区切り文字(`/` `\\`)を含まず、`.` `..` でもない単一の名前(正規化を優先)"
+		},
+		"name-schema": {
+			"$comment": "string-schema をそのまま使うと const / enum でリテラル名の制限を迂回できてしまうため、const と enum の各値にも name-literal を課す。pattern などは制限しない。",
+			"x-extension": true,
+			"title": "名前のスキーマ指定",
+			"description": "名前を文字列スキーマで指定する。名前がこのスキーマを満たすノードを表す",
+			"$ref": "#/$defs/string-schema",
+			"unevaluatedProperties": false,
+			"properties": {
+				"const": { "$ref": "#/$defs/name-literal" },
+				"enum": { "items": { "$ref": "#/$defs/name-literal" } }
+			}
+		},
+		"reference": {
+			"$comment": "JSON Schema の $ref / $defs と同様。$ref は他のプロパティと併記でき、参照先のノードと自身の条件の両方を満たすこと(AND)を意味する。$defs の値はノード(tree-node)。",
+			"type": "object",
+			"properties": {
+				"$ref": {
+					"x-extension": true,
+					"type": "string",
+					"minLength": 1,
+					"title": "ノードの参照",
+					"description": "再利用するノード定義への参照(URI参照。通常は `#/$defs/名前`)。解決はツール側の責務で、スキーマでは検証しません"
+				},
+				"$defs": {
+					"x-extension": true,
+					"type": "object",
+					"additionalProperties": { "$ref": "#/$defs/tree-node" },
+					"title": "ノード定義の集合",
+					"description": "`$ref` から参照されるノード定義を名前付きで置く。再帰的な定義(自己参照)も書ける"
+				}
+			}
+		},
 		"common": {
 			"type": "object",
 			"title": "共通プロパティ",
 			"description": "ディレクトリ・ファイル・リンクで共通のプロパティ",
-			"required": ["type", "name"],
+			"allOf": [{ "$ref": "#/$defs/reference" }],
 			"properties": {
-				"type": {
-					"enum": ["directory", "file", "link"]
-				},
+				"type": { "$ref": "#/$defs/node-type" },
 				"name": {
-					"type": "string",
-					"minLength": 1,
 					"title": "ノード名",
-					"description": "ファイルまたはディレクトリの名称。`regex-name` がtrueの場合は正規表現。falseの場合は、パス区切り文字(`/` `\\`)を含まず、`.` `..` でもない単一の名前のみ許可する(正規化を優先)"
+					"description": "ファイルまたはディレクトリの名称。文字列ならその名前との完全一致、オブジェクトなら `string-schema` による指定(例: `{\"pattern\": \"^[a-z]+\\\\.ts$\"}`)。省略した場合は任意の名前に該当する",
+					"anyOf": [
+						{ "$ref": "#/$defs/name-literal" },
+						{ "$ref": "#/$defs/name-schema" }
+					]
 				},
-				"size": { "$ref": "#/$defs/size-spec" },
-				"regex-name": {
-					"type": "boolean",
-					"default": false,
-					"x-extension": true,
-					"title": "正規表現による名前指定",
-					"description": "trueの場合、nameプロパティの値を正規表現として評価し、一致するノード(file/link/directory)が存在する場合に課す制約を記述します。存在自体は要求しないため、常にoptionalと同等です。そのため `optional` は併用不可です(指定自体を禁止)。例: `^[a-z][a-zA-Z0-9]+\\.ts$`"
+				"size": {
+					"$ref": "#/$defs/int-range",
+					"title": "ファイルサイズ",
+					"description": "バイト単位。整数なら完全一致、`{min, max}` なら範囲指定"
 				},
 				"description": {
 					"type": "string",
@@ -218,96 +318,158 @@
 					"title": "詳細情報",
 					"description": "このノードに関するより詳しい補足情報",
 					"x-extension": true
+				}
+			}
+		},
+		"logic": {
+			"$comment": "JSON Schema の allOf / anyOf / oneOf / not / if / then / else と同じ意味で、ノードの条件を合成する。各要素は tree-node(ノードの記述)。if が無い then / else は無視される(JSON Schemaと同じ)。ノード単位の論理演算子はここにだけ定義する。",
+			"properties": {
+				"allOf": {
+					"x-extension": true,
+					"type": "array",
+					"minItems": 1,
+					"items": { "$ref": "#/$defs/tree-node" },
+					"title": "すべてに該当",
+					"description": "すべての要素に該当すること"
 				},
-				"optional": {
-					"type": "boolean",
-					"default": false,
-					"title": "必須要否 (オプショナル)",
-					"description": "trueの場合、対象ノードが存在しなくても検証を通過します。`regex-name: true` のノードは常にoptional相当のため、併用不可です(指定自体を禁止)",
-					"x-extension": true
-				}
-			},
-			"if": {
-				"required": ["regex-name"],
-				"properties": { "regex-name": { "const": true } }
-			},
-			"then": {
-				"properties": {
-					"name": { "format": "regex" },
-					"optional": false
-				}
-			},
-			"else": {
-				"properties": {
-					"name": { "pattern": "^(?!\\.{1,2}$)[^/\\\\]+$" }
+				"anyOf": {
+					"x-extension": true,
+					"type": "array",
+					"minItems": 1,
+					"items": { "$ref": "#/$defs/tree-node" },
+					"title": "いずれかに該当",
+					"description": "1つ以上の要素に該当すること"
+				},
+				"oneOf": {
+					"x-extension": true,
+					"type": "array",
+					"minItems": 1,
+					"items": { "$ref": "#/$defs/tree-node" },
+					"title": "ちょうど1つに該当",
+					"description": "ちょうど1つの要素に該当すること"
+				},
+				"not": {
+					"x-extension": true,
+					"$ref": "#/$defs/tree-node",
+					"title": "該当しない",
+					"description": "この要素に該当しないこと"
+				},
+				"if": {
+					"x-extension": true,
+					"$ref": "#/$defs/tree-node",
+					"title": "条件",
+					"description": "この要素に該当する場合、`then` を、該当しない場合は `else` を適用する"
+				},
+				"then": {
+					"x-extension": true,
+					"$ref": "#/$defs/tree-node",
+					"title": "条件成立時",
+					"description": "`if` に該当する場合に満たすこと"
+				},
+				"else": {
+					"x-extension": true,
+					"$ref": "#/$defs/tree-node",
+					"title": "条件不成立時",
+					"description": "`if` に該当しない場合に満たすこと"
 				}
 			}
 		},
 		"directory-body": {
+			"$comment": "contents 以外の配列系プロパティは JSON Schema Draft 2020-12 の Array 仕様に準じる(子要素の集まりを配列とみなす)。ただしディレクトリの子に順序はないため、順序に依存する prefixItems / unevaluatedItems は採用せず、const / enum は順不同の集合として扱う。",
 			"type": "object",
 			"title": "ディレクトリ固有プロパティ",
+			"description": "ディレクトリに固有のプロパティ。子要素の存在・個数・閉じ方は、ここの配列系プロパティだけが決める。ディレクトリ以外のノードでは、これらは成立扱いになる(JSON Schemaと同じ)",
+			"allOf": [{ "$ref": "#/$defs/logic" }],
 			"properties": {
-				"strict": {
-					"x-extension": true,
-					"enum": ["self", "recursive", "off-self", "off-recursive"],
-					"title": "厳密な構成検証",
-					"description": "`contents` の厳密さ(定義にない子の存在を許可しないか)を指定します。省略時は親から継承した状態に従います。`self`: 自身の `contents` のみ厳密にする(配下への継承状態は変えない)。`recursive`: 自身と配下のすべてのサブディレクトリを厳密にする。`off-self`: 自身の `contents` のみ非厳密に上書きする(配下への継承状態は変えない)。`off-recursive`: 自身と配下のすべてを非厳密に上書きする(親から再帰で受けた効果を打ち消す)。厳密化の効果を受けた状態で `contents` が空なら「空ディレクトリ」を意味します"
-				},
 				"contents": {
 					"type": "array",
 					"title": "直下の子要素",
-					"description": "このディレクトリに含まれるサブディレクトリおよびファイルのリスト。厳密化の効果を受けている状態で空配列なら「空ディレクトリ」を意味します",
+					"description": "直下の子要素の記述(閉じた構成)。各要素 X は次のように展開される: `allOf` に `{contains: X, minContains: 1}` を追加する(X に該当する子が1つ以上存在する)。さらに `items` に `{anyOf: [全要素]}` を AND で追加する(どの子もいずれかの要素に該当する=記述にない子は許さない)。空配列は `maxItems: 0`(空ディレクトリ)に展開される。「必須だが他も許す」場合は `contents` ではなく `allOf: [{contains: X}]` を使う。1つの子が複数の要素を同時に満たしてもよい(個数の割り当てはしない)",
 					"items": { "$ref": "#/$defs/tree-node" }
+				},
+				"minItems": {
+					"x-extension": true,
+					"type": "integer",
+					"minimum": 0,
+					"title": "子要素数の下限",
+					"description": "直下の子要素(file/link/directory)の個数がこの値以上"
+				},
+				"maxItems": {
+					"x-extension": true,
+					"type": "integer",
+					"minimum": 0,
+					"title": "子要素数の上限",
+					"description": "直下の子要素の個数がこの値以下"
+				},
+				"items": {
+					"x-extension": true,
+					"$ref": "#/$defs/tree-node",
+					"title": "全子要素の条件",
+					"description": "すべての子要素がこのノードに該当すること"
+				},
+				"contains": {
+					"x-extension": true,
+					"$ref": "#/$defs/tree-node",
+					"title": "存在する子要素",
+					"description": "このノードに該当する子要素が `minContains` 個以上(`maxContains` 個以下)存在すること"
+				},
+				"minContains": {
+					"x-extension": true,
+					"type": "integer",
+					"minimum": 0,
+					"default": 1,
+					"title": "contains の下限",
+					"description": "`contains` に該当する子要素の最小数。0なら存在を要求しない"
+				},
+				"maxContains": {
+					"x-extension": true,
+					"type": "integer",
+					"minimum": 0,
+					"title": "contains の上限",
+					"description": "`contains` に該当する子要素の最大数"
+				},
+				"const": {
+					"x-extension": true,
+					"type": "array",
+					"items": { "$ref": "#/$defs/tree-node" },
+					"title": "子要素の完全一致(順不同)",
+					"description": "子要素の集合がこの配列と一致すること。順序は問わず、配列の各要素と子要素が1対1に対応する"
+				},
+				"enum": {
+					"x-extension": true,
+					"type": "array",
+					"items": {
+						"type": "array",
+						"items": { "$ref": "#/$defs/tree-node" }
+					},
+					"title": "子要素の候補(順不同)",
+					"description": "子要素の集合が、ここに列挙した配列のいずれか1つと一致すること(`const` と同じ規則)"
 				}
 			}
 		},
-		"directory": {
-			"title": "ディレクトリオブジェクト",
-			"unevaluatedProperties": false,
-			"allOf": [
-				{ "$ref": "#/$defs/common" },
-				{ "$ref": "#/$defs/directory-body" },
-				{
-					"properties": {
-						"type": { "const": "directory" }
-					}
+		"link-body": {
+			"type": "object",
+			"title": "リンク固有プロパティ",
+			"allOf": [{ "$ref": "#/$defs/logic" }],
+			"properties": {
+				"target": {
+					"type": "string",
+					"minLength": 1,
+					"title": "リンク先",
+					"description": "参照先のパス。実JSONの一番外側のディレクトリからの相対パス。リンク先の存在検証はツール側の責務で、スキーマでは検証しません"
 				}
-			]
+			}
 		},
-		"link": {
-			"title": "リンクオブジェクト",
-			"unevaluatedProperties": false,
-			"required": ["target"],
-			"allOf": [
-				{ "$ref": "#/$defs/common" },
-				{
-					"properties": {
-						"type": { "const": "link" },
-						"target": {
-							"type": "string",
-							"minLength": 1,
-							"title": "リンク先",
-							"description": "参照先のパス。実JSONの一番外側のディレクトリからの相対パス。リンク先の存在検証はツール側の責務で、スキーマでは検証しません"
-						}
-					}
+		"file-body": {
+			"type": "object",
+			"title": "ファイル固有プロパティ",
+			"allOf": [{ "$ref": "#/$defs/logic" }],
+			"properties": {
+				"data": {
+					"x-extension": true,
+					"$ref": "#/$defs/file-data"
 				}
-			]
-		},
-		"file": {
-			"title": "ファイルオブジェクト",
-			"unevaluatedProperties": false,
-			"allOf": [
-				{ "$ref": "#/$defs/common" },
-				{
-					"properties": {
-						"type": { "const": "file" },
-						"data": {
-							"x-extension": true,
-							"$ref": "#/$defs/file-data"
-						}
-					}
-				}
-			]
+			}
 		},
 		"file-data": {
 			"type": "object",
@@ -337,33 +499,18 @@
 		},
 		"text-data": {
 			"title": "テキストファイル定義",
-			"description": "`text` / `start` / `regex` を複数指定した場合は、すべてを満たす必要があります(AND)",
+			"description": "ファイル内容(文字列)に対する制約。`schema` 以外のプロパティは `string-schema` に従います(完全一致は `const`、前方一致や正規表現は `pattern`)。複数指定した場合はすべてを満たす必要があります(AND)",
 			"type": "object",
 			"unevaluatedProperties": false,
 			"x-extension": true,
 			"properties": {
-				"schema": { "const": "text" },
-				"text": {
-					"type": "string",
-					"title": "完全一致テキスト",
-					"description": "ファイルが保持すべき正確なテキスト内容"
-				},
-				"start": {
-					"type": "string",
-					"title": "開始文字列 (プレフィックス)",
-					"description": "ファイル内容がこの文字列から始まることを検証します"
-				},
-				"regex": {
-					"type": "string",
-					"format": "regex",
-					"title": "内容の正規表現",
-					"description": "ファイル内容が満たすべき正規表現パターン"
-				}
-			}
+				"schema": { "const": "text" }
+			},
+			"allOf": [{ "$ref": "#/$defs/string-schema" }]
 		},
 		"json-data": {
 			"title": "JSONファイル定義",
-			"description": "JSONファイルのトップレベルのプロパティに対する制約",
+			"description": "JSONファイルの内容に対する制約。`properties` / `contain` はトップレベルのプロパティに対する制約、`json-schema` はJSON全体に対するJSON Schema",
 			"type": "object",
 			"unevaluatedProperties": false,
 			"x-extension": true,
@@ -378,6 +525,11 @@
 					"type": "object",
 					"title": "部分プロパティ定義",
 					"description": "データのトップレベルに、ここで指定したプロパティが存在し、その値も一致することを要求します(例: `$schema` の値を制約できます)。指定していないプロパティは不問です"
+				},
+				"json-schema": {
+					"$ref": "https://json-schema.org/draft/2020-12/schema",
+					"title": "JSON Schema による検証",
+					"description": "JSON全体に適用するJSON Schema(JSON Schema 2020-12 のメタスキーマに従う)"
 				}
 			}
 		}

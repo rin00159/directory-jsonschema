@@ -1,5 +1,0 @@
-# yaml-language-server: $schema=/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct
-description: file/directoryのみ
-strict: self
-contents:
-  - type: [file,directory]

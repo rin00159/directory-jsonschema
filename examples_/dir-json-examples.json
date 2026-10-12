@@ -1,0 +1,26 @@
+{
+	"$schema": "./dir-json-examples.schema.json",
+	"jsons": [
+		{
+			"group": "基本",
+			"label": "DIRDESC例: contents + json contain",
+			"target": "#/$defs/struct",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"description": "ディレクトリ構造説明",
+						"data": {
+							"schema": "json",
+							"contain": {
+								"$schema": "/x/package.cdx.schema.json"
+							}
+						},
+						"name": "DIRDESC.yaml"
+					}
+				]
+			}
+		}
+	]
+}

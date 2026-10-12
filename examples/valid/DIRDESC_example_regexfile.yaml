@@ -1,7 +1,0 @@
-# yaml-language-server: $schema=/Users/rin/mydev/schema/directory-jsonschema/src/directory.schema.json#/$defs/struct
-description: 意味:正規表現で定められた名前のfileのみ
-strict: recursive
-contents:
-  - type: file
-    name: "^[a-z][a-zA-Z0-9]+\\.ts$"
-    regex-name: true
