@@ -25,7 +25,9 @@
 					"title": "スキーマ参照",
 					"description": "この記述が従うスキーマのパスまたはURI"
 				},
-				"report": { "$ref": "#/$defs/tree-report" },
+				"report": {
+					"$ref": "#/$defs/tree-report"
+				},
 				"description": {
 					"type": "string",
 					"title": "ディレクトリの説明",
@@ -35,7 +37,7 @@
 					"type": "boolean",
 					"default": false,
 					"title": "実体記述モード",
-					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)と `$ref` / `$defs` を禁止し、配下のノードには `type`(単一)と `name`(リテラル)を必須とします。それ以外のプロパティは、実体への補足として自由に併記できます。なお禁止は実体ノード(ルートと `contents` の木)に対するもので、`contains` / `items` など述語を値に取るプロパティの内部は対象外です"
+					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)と `$ref` / `$defs` を禁止し、配下のノードには `type`(単一)と `name`(リテラル)を必須とします。それ以外の制約プロパティ(`contains`, `minItems`など)は、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として扱われ、他のプロパティから導出可能であっても矛盾や冗長とはみなされません"
 				}
 			},
 			"allOf": [
@@ -105,6 +107,8 @@
 			]
 		},
 		"applies-directory": {
+			"title": "ディレクトリ適用条件",
+			"description": "ノードがディレクトリ種別に該当するかを判定する条件",
 			"$comment": "type が省略されているか、directory を含む場合に成立する",
 			"properties": {
 				"type": {
@@ -116,6 +120,8 @@
 			}
 		},
 		"applies-file": {
+			"title": "ファイル適用条件",
+			"description": "ノードがファイル種別に該当するかを判定する条件",
 			"$comment": "type が省略されているか、file を含む場合に成立する",
 			"properties": {
 				"type": {
@@ -127,6 +133,8 @@
 			}
 		},
 		"applies-link": {
+			"title": "リンク適用条件",
+			"description": "ノードがリンク種別に該当するかを判定する条件",
 			"$comment": "type が省略されているか、link を含む場合に成立する",
 			"properties": {
 				"type": {
@@ -141,7 +149,7 @@
 			"type": "object",
 			"unevaluatedProperties": false,
 			"title": "スキャンレポート",
-			"description": "ディレクトリ構造の走査結果や統計情報",
+			"description": "ディレクトリ構造の走査結果や統計情報を格納・参照するためのプロパティ",
 			"required": ["type", "directories", "files"],
 			"properties": {
 				"type": {
@@ -263,8 +271,14 @@
 			"$ref": "#/$defs/string-schema",
 			"unevaluatedProperties": false,
 			"properties": {
-				"const": { "$ref": "#/$defs/name-literal" },
-				"enum": { "items": { "$ref": "#/$defs/name-literal" } }
+				"const": {
+					"title": "名前の完全一致",
+					"$ref": "#/$defs/name-literal"
+				},
+				"enum": {
+					"title": "名前の候補一覧",
+					"items": { "$ref": "#/$defs/name-literal" }
+				}
 			}
 		},
 		"reference": {
@@ -384,7 +398,8 @@
 				"contents": {
 					"type": "array",
 					"title": "直下の子要素",
-					"description": "直下の子要素の記述(閉じた構成)。各要素 X は次のように展開される: `allOf` に `{contains: X, minContains: 1}` を追加する(X に該当する子が1つ以上存在する)。さらに `items` に `{anyOf: [全要素]}` を AND で追加する(どの子もいずれかの要素に該当する=記述にない子は許さない)。空配列は `maxItems: 0`(空ディレクトリ)に展開される。「必須だが他も許す」場合は `contents` ではなく `allOf: [{contains: X}]` を使う。1つの子が複数の要素を同時に満たしてもよい(個数の割り当てはしない)",
+					"description": "直下の子要素が指定した配列と完全に一致し、指定外のノードを許容しない閉鎖系のディレクトリ構成を表します。「必須だが他も許す」場合は `contents` ではなく `allOf: [{contains: X}]` を使用してください。",
+					"$comment": "【展開ロジック】各要素 X は次のように展開される: `allOf` に `{contains: X, minContains: 1}` を追加する(X に該当する子が1つ以上存在する)。さらに `items` に `{anyOf: [全要素]}` を AND で追加する(どの子もいずれかの要素に該当する=記述にない子は許さない)。空配列は `maxItems: 0`(空ディレクトリ)に展開される。1つの子が複数の要素を同時に満たしてもよい(個数の割り当てはしない)",
 					"items": { "$ref": "#/$defs/tree-node" }
 				},
 				"minItems": {
@@ -456,7 +471,7 @@
 					"type": "string",
 					"minLength": 1,
 					"title": "リンク先",
-					"description": "参照先のパス。実JSONの一番外側のディレクトリからの相対パス。リンク先の存在検証はツール側の責務で、スキーマでは検証しません"
+					"description": "参照先のパス。「スキーマが表現している一番外のディレクトリ」からの相対パスとして指定します。リンク先の存在検証はツール側の責務で、スキーマでは検証しません"
 				}
 			}
 		},
@@ -467,6 +482,8 @@
 			"properties": {
 				"data": {
 					"x-extension": true,
+					"title": "ファイルデータ定義",
+					"description": "ファイルの内容や形式に対する具体的な検証ルール",
 					"$ref": "#/$defs/file-data"
 				}
 			}
@@ -478,7 +495,11 @@
 			"description": "ファイルの内容や形式に対する検証ルール。`schema` の値で定義を振り分ける",
 			"required": ["schema"],
 			"properties": {
-				"schema": { "enum": ["text", "json"] }
+				"schema": {
+					"title": "データ検証スキーマ種別",
+					"description": "ファイル内容をテキストとして検証するか、JSONとして検証するかを指定する識別子",
+					"enum": ["text", "json"]
+				}
 			},
 			"allOf": [
 				{
@@ -504,7 +525,11 @@
 			"unevaluatedProperties": false,
 			"x-extension": true,
 			"properties": {
-				"schema": { "const": "text" }
+				"schema": {
+					"title": "スキーマ種別 (テキスト)",
+					"description": "テキストデータとしての検証を指定",
+					"const": "text"
+				}
 			},
 			"allOf": [{ "$ref": "#/$defs/string-schema" }]
 		},
@@ -515,16 +540,20 @@
 			"unevaluatedProperties": false,
 			"x-extension": true,
 			"properties": {
-				"schema": { "const": "json" },
+				"schema": {
+					"title": "スキーマ種別 (JSON)",
+					"description": "JSONデータとしての検証を指定",
+					"const": "json"
+				},
 				"properties": {
 					"type": "object",
 					"title": "完全プロパティ定義",
-					"description": "データのトップレベルが、ここで指定したプロパティ・値と完全に一致する(過不足がない)ことを要求します"
+					"description": "データのトップレベルが、ここで指定したオブジェクトリテラルと完全に一致する(キーと値の過不足がない)ことを要求します。値はJSON Schemaではなく期待する実データを直接記述します"
 				},
 				"contain": {
 					"type": "object",
 					"title": "部分プロパティ定義",
-					"description": "データのトップレベルに、ここで指定したプロパティが存在し、その値も一致することを要求します(例: `$schema` の値を制約できます)。指定していないプロパティは不問です"
+					"description": "データのトップレベルに、ここで指定したオブジェクトリテラルのプロパティが存在し、その値も完全に一致することを要求します。値はJSON Schemaではなく期待する実データを直接記述します。指定していないプロパティは不問です"
 				},
 				"json-schema": {
 					"$ref": "https://json-schema.org/draft/2020-12/schema",
