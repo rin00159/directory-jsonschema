@@ -2452,6 +2452,261 @@
 					}
 				]
 			}
+		},
+		{
+			"group": "property:defs",
+			"group-pointer": "/$defs/reference",
+			"name": "recursive-closure",
+			"pointer": [
+				"/$defs/reference/properties/$defs",
+				"/$defs/reference/properties/$ref",
+				"/$defs/directory-body/properties/items"
+			],
+			"label": "全階層を閉じる: どの階層でも子は「.ts ファイル」か「同じ条件を満たすサブディレクトリ」だけ(items + 自己参照)。旧 recursive-strict 相当。.ts 以外のファイルやリンクが1つでもあれば違反",
+			"valid": true,
+			"instance": {
+				"$defs": {
+					"ts-tree": {
+						"type": "directory",
+						"items": {
+							"anyOf": [
+								{
+									"type": "file",
+									"name": {
+										"pattern": "\\.ts$"
+									}
+								},
+								{
+									"$ref": "#/$defs/ts-tree"
+								}
+							]
+						}
+					}
+				},
+				"$ref": "#/$defs/ts-tree"
+			}
+		},
+		{
+			"group": "property:defs",
+			"group-pointer": "/$defs/reference",
+			"name": "recursive-closure",
+			"pointer": [
+				"/$defs/reference/properties/$ref",
+				"/$defs/directory-body/properties/contents"
+			],
+			"label": "contents の閉じ方と再帰の閉じ方を併用: ルート直下は README.md・src・test だけ(contents は常に閉じる)。src と test は配下を全階層で .ts のみに閉じる($ref と name の併記は AND)",
+			"valid": true,
+			"instance": {
+				"$defs": {
+					"ts-tree": {
+						"type": "directory",
+						"items": {
+							"anyOf": [
+								{
+									"type": "file",
+									"name": {
+										"pattern": "\\.ts$"
+									}
+								},
+								{
+									"$ref": "#/$defs/ts-tree"
+								}
+							]
+						}
+					}
+				},
+				"contents": [
+					{
+						"type": "file",
+						"name": "README.md"
+					},
+					{
+						"$ref": "#/$defs/ts-tree",
+						"name": "src"
+					},
+					{
+						"$ref": "#/$defs/ts-tree",
+						"name": "test"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:defs",
+			"group-pointer": "/$defs/reference",
+			"name": "recursive-closure",
+			"pointer": [
+				"/$defs/reference/properties/$defs",
+				"/$defs/logic/properties/not",
+				"/$defs/directory-body/properties/items"
+			],
+			"label": "開いたまま全階層に禁止事項だけ課す: どの階層にも .DS_Store を置かせない。ファイルとリンクは自由、ディレクトリは同じ条件を再帰的に満たすこと。禁止は not + contains、全階層への伝播は items + 自己参照",
+			"valid": true,
+			"instance": {
+				"$defs": {
+					"no-ds-store": {
+						"type": "directory",
+						"not": {
+							"contains": {
+								"type": "file",
+								"name": ".DS_Store"
+							}
+						},
+						"items": {
+							"anyOf": [
+								{
+									"not": {
+										"type": "directory"
+									}
+								},
+								{
+									"$ref": "#/$defs/no-ds-store"
+								}
+							]
+						}
+					}
+				},
+				"$ref": "#/$defs/no-ds-store"
+			}
+		},
+		{
+			"group": "property:defs",
+			"group-pointer": "/$defs/reference",
+			"name": "recursive-closure",
+			"pointer": [
+				"/$defs/reference/properties/$defs",
+				"/$defs/logic/properties/if",
+				"/$defs/logic/properties/then"
+			],
+			"label": "全階層に「該当するものはこう制約する」を課す(旧 regex-name の用途): どの階層でも .ts ファイルは 10240 バイト以下、ほかのファイルは自由、ディレクトリは再帰的に同じ条件。if が不成立の子には条件が掛からない",
+			"valid": true,
+			"instance": {
+				"$defs": {
+					"limit-ts": {
+						"type": "directory",
+						"items": {
+							"allOf": [
+								{
+									"if": {
+										"type": "file",
+										"name": {
+											"pattern": "\\.ts$"
+										}
+									},
+									"then": {
+										"size": {
+											"max": 10240
+										}
+									}
+								},
+								{
+									"if": {
+										"type": "directory"
+									},
+									"then": {
+										"$ref": "#/$defs/limit-ts"
+									}
+								}
+							]
+						}
+					}
+				},
+				"$ref": "#/$defs/limit-ts"
+			}
+		},
+		{
+			"group": "property:defs",
+			"group-pointer": "/$defs/reference",
+			"name": "recursive-closure",
+			"pointer": "/$defs/reference/properties/$defs",
+			"label": "誤用: $defs の値はノードでなければならない(未知のプロパティを含むノードは不可)",
+			"valid": false,
+			"instance": {
+				"$defs": {
+					"ts-tree": {
+						"type": "directory",
+						"foo": 1
+					}
+				}
+			},
+			"expectedErrors": [
+				{
+					"instanceLocation": "/$defs/ts-tree",
+					"keyword": "unevaluatedProperties"
+				}
+			]
+		},
+		{
+			"group": "property:defs",
+			"group-pointer": "/$defs/reference",
+			"name": "recursive-closure",
+			"pointer": "/$defs/reference/properties/$ref",
+			"label": "誤用: $ref は文字列でなければならない(ノードを直接埋め込むのは $ref ではなく通常のノードとして書く)",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"$ref": {
+							"type": "directory"
+						}
+					}
+				]
+			},
+			"expectedErrors": [
+				{
+					"instanceLocation": "/contents/0/$ref",
+					"keyword": "type"
+				}
+			]
+		},
+		{
+			"group": "property:defs",
+			"group-pointer": "/$defs/reference",
+			"name": "recursive-closure",
+			"pointer": "/$defs/directory-body/properties/items",
+			"label": "誤用: items は単一のノードで、配列は不可(複数の候補を許すときは items.anyOf を使う)",
+			"valid": false,
+			"instance": {
+				"items": [
+					{
+						"type": "file",
+						"name": {
+							"pattern": "\\.ts$"
+						}
+					},
+					{
+						"type": "directory"
+					}
+				]
+			},
+			"expectedErrors": [
+				{
+					"instanceLocation": "/items",
+					"keyword": "type"
+				}
+			]
+		},
+		{
+			"group": "property:root",
+			"group-pointer": "/$defs/struct",
+			"name": "recursive-closure",
+			"pointer": "/$defs/struct/then",
+			"label": "concrete: true では $ref / $defs を使えない(参照先に論理演算子を隠せてしまうため)。再帰的な閉じ方は定義側の記述で行い、実体記述には持ち込まない",
+			"valid": false,
+			"instance": {
+				"concrete": true,
+				"$defs": {
+					"ts-tree": {
+						"type": "directory"
+					}
+				},
+				"contents": [
+					{
+						"type": "file",
+						"name": "README.md"
+					}
+				]
+			}
 		}
 	]
 }
