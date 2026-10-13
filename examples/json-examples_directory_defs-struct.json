@@ -23,7 +23,6 @@
 		},
 		{
 			"group": "basic",
-			"label": "struct: $schema/report/description",
 			"valid": true,
 			"instance": {
 				"$schema": "x",
@@ -36,32 +35,43 @@
 			}
 		},
 		{
-			"group": "basic",
-			"label": "struct: 未知プロパティ",
+			"group": "property:root",
+			"label": "未知プロパティ",
 			"valid": false,
 			"instance": {
 				"foo": 1
 			}
 		},
 		{
-			"group": "basic",
-			"label": "struct: name は持てない(ルートは名前を持たない)",
+			"group": "property:root",
+			"label": "ルートは名前を持てない",
+			"pointer": "/name",
 			"valid": false,
 			"instance": {
 				"name": "x"
 			}
 		},
 		{
-			"group": "basic",
-			"label": "struct: type は持てない",
+			"group": "property:root",
+			"label": "ルートはtypeを持てない",
+			"pointer": "/type",
 			"valid": false,
 			"instance": {
 				"type": "directory"
 			}
 		},
 		{
+			"group": "property",
+			"label": "空のノード {} は有効(全集合)",
+			"valid": true,
+			"instance": {
+				"contents": [{}]
+			}
+		},
+		{
 			"group": "basic",
 			"label": "未知のtype",
+			"group-pointer": "/$defs/common/type",
 			"valid": false,
 			"instance": {
 				"contents": [
@@ -73,16 +83,8 @@
 			}
 		},
 		{
-			"group": "basic",
-			"label": "空のノード {} は有効(条件なし)",
-			"valid": true,
-			"instance": {
-				"contents": [{}]
-			}
-		},
-		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "type 省略",
 			"valid": true,
 			"instance": {
@@ -95,7 +97,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "type 配列 [directory,file]",
 			"valid": true,
 			"instance": {
@@ -109,7 +111,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "type 配列: 空は不可",
 			"valid": false,
 			"instance": {
@@ -123,7 +125,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "type 配列: 重複は不可",
 			"valid": false,
 			"instance": {
@@ -136,7 +138,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "type 配列: 不明な種別",
 			"valid": false,
 			"instance": {
@@ -149,7 +151,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "type 配列[file]に contents は不可",
 			"valid": false,
 			"instance": {
@@ -163,7 +165,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "type 配列[directory,file]に contents と data は可",
 			"valid": true,
 			"instance": {
@@ -181,7 +183,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "type 省略で contents / data / target すべて可",
 			"valid": true,
 			"instance": {
@@ -200,7 +202,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "file に contents は不可",
 			"valid": false,
 			"instance": {
@@ -215,7 +217,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "directory に data は不可",
 			"valid": false,
 			"instance": {
@@ -233,7 +235,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "directory に target は不可",
 			"valid": false,
 			"instance": {
@@ -248,7 +250,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "link は target 無しでも可(述語)",
 			"valid": true,
 			"instance": {
@@ -262,7 +264,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/type",
+			"group-pointer": "/$defs/common/type",
 			"label": "link に target あり",
 			"valid": true,
 			"instance": {
@@ -277,7 +279,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "リテラル名",
 			"valid": true,
 			"instance": {
@@ -291,7 +293,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "'.gitignore' は可",
 			"valid": true,
 			"instance": {
@@ -305,7 +307,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "'..a' は可",
 			"valid": true,
 			"instance": {
@@ -319,7 +321,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "'.' は不可",
 			"valid": false,
 			"instance": {
@@ -333,7 +335,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "'..' は不可",
 			"valid": false,
 			"instance": {
@@ -347,7 +349,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "'src/foo' は不可",
 			"valid": false,
 			"instance": {
@@ -361,7 +363,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "'a\\b' は不可",
 			"valid": false,
 			"instance": {
@@ -375,7 +377,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "空文字は不可",
 			"valid": false,
 			"instance": {
@@ -389,7 +391,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name が数値は不可",
 			"valid": false,
 			"instance": {
@@ -403,7 +405,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: pattern",
 			"valid": true,
 			"instance": {
@@ -419,7 +421,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: pattern はパス区切りを含めても可",
 			"valid": true,
 			"instance": {
@@ -435,9 +437,10 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: pattern が不正な正規表現",
-			"valid": false,
+			"valid": true,
+			"valid@when_formatAssertion": false,
 			"instance": {
 				"contents": [
 					{
@@ -451,7 +454,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: const リテラル",
 			"valid": true,
 			"instance": {
@@ -467,9 +470,10 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: const に 'a/b' は不可",
-			"valid": false,
+			"valid": true,
+			"valid@when_formatAssertion": false,
 			"instance": {
 				"contents": [
 					{
@@ -483,7 +487,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: enum リテラル",
 			"valid": true,
 			"instance": {
@@ -499,9 +503,10 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: enum に '..' を含むと不可",
-			"valid": false,
+			"valid": true,
+			"valid@when_formatAssertion": false,
 			"instance": {
 				"contents": [
 					{
@@ -515,7 +520,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: minLength/maxLength",
 			"valid": true,
 			"instance": {
@@ -532,7 +537,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: 不明キーは不可",
 			"valid": false,
 			"instance": {
@@ -548,7 +553,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/common/name",
+			"group-pointer": "/$defs/common/name",
 			"label": "name: 空オブジェクトは可(条件なし)",
 			"valid": true,
 			"instance": {
@@ -691,7 +696,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "正常: type と name",
 			"valid": true,
 			"instance": {
@@ -716,7 +721,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "正常: data は const 無しでも可",
 			"valid": true,
 			"instance": {
@@ -734,7 +739,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "正常: data は const 付き",
 			"valid": true,
 			"instance": {
@@ -753,7 +758,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "正常: json properties",
 			"valid": true,
 			"instance": {
@@ -774,7 +779,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "正常: link に target 無しでも可",
 			"valid": true,
 			"instance": {
@@ -789,7 +794,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "正常: 空 contents",
 			"valid": true,
 			"instance": {
@@ -799,7 +804,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "正常: 深い階層",
 			"valid": true,
 			"instance": {
@@ -827,7 +832,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "正常: report/description 付き",
 			"valid": true,
 			"instance": {
@@ -848,7 +853,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "補足を許可: size の範囲",
 			"valid": true,
 			"instance": {
@@ -866,7 +871,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "補足を許可: name 以外の制約系 data (pattern/contain/json-schema)",
 			"valid": true,
 			"instance": {
@@ -900,7 +905,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "補足を許可: 配列系 (minItems/contains/items/const/enum)",
 			"valid": true,
 			"instance": {
@@ -946,7 +951,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "補足を許可: ルートの配列系",
 			"valid": true,
 			"instance": {
@@ -962,7 +967,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "type 必須",
 			"valid": false,
 			"instance": {
@@ -976,7 +981,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "name 必須",
 			"valid": false,
 			"instance": {
@@ -990,7 +995,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "type 配列は不可",
 			"valid": false,
 			"instance": {
@@ -1005,7 +1010,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "name のスキーマ指定は不可",
 			"valid": false,
 			"instance": {
@@ -1022,7 +1027,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "name のリテラル制限は継続('a/b')",
 			"valid": false,
 			"instance": {
@@ -1037,7 +1042,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "深い階層で type 欠落",
 			"valid": false,
 			"instance": {
@@ -1057,7 +1062,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "allOf は不可(ノード)",
 			"valid": false,
 			"instance": {
@@ -1077,7 +1082,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "allOf は不可(ルート)",
 			"valid": false,
 			"instance": {
@@ -1097,7 +1102,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "anyOf は不可(ノード)",
 			"valid": false,
 			"instance": {
@@ -1117,7 +1122,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "anyOf は不可(ルート)",
 			"valid": false,
 			"instance": {
@@ -1137,7 +1142,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "oneOf は不可(ノード)",
 			"valid": false,
 			"instance": {
@@ -1157,7 +1162,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "oneOf は不可(ルート)",
 			"valid": false,
 			"instance": {
@@ -1177,7 +1182,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "not は不可(ノード)",
 			"valid": false,
 			"instance": {
@@ -1195,7 +1200,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "not は不可(ルート)",
 			"valid": false,
 			"instance": {
@@ -1213,7 +1218,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "if は不可(ノード)",
 			"valid": false,
 			"instance": {
@@ -1231,7 +1236,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "if は不可(ルート)",
 			"valid": false,
 			"instance": {
@@ -1249,7 +1254,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "then は不可(ノード)",
 			"valid": false,
 			"instance": {
@@ -1267,7 +1272,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "then は不可(ルート)",
 			"valid": false,
 			"instance": {
@@ -1285,7 +1290,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "else は不可(ノード)",
 			"valid": false,
 			"instance": {
@@ -1303,7 +1308,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "else は不可(ルート)",
 			"valid": false,
 			"instance": {
@@ -1321,7 +1326,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "$ref は不可(ノード)",
 			"valid": false,
 			"instance": {
@@ -1337,7 +1342,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "$defs は不可(ノード)",
 			"valid": false,
 			"instance": {
@@ -1359,7 +1364,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "$defs は不可(ルート)",
 			"valid": false,
 			"instance": {
@@ -1380,7 +1385,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "深い階層の論理演算子",
 			"valid": false,
 			"instance": {
@@ -1412,7 +1417,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "concrete:false なら論理演算子も可",
 			"valid": true,
 			"instance": {
@@ -1432,7 +1437,7 @@
 		},
 		{
 			"group": "property:root",
-			"pointer": "/concrete",
+			"group-pointer": "/concrete",
 			"label": "concrete 省略なら従来どおり",
 			"valid": true,
 			"instance": {
@@ -1453,7 +1458,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "text: const",
 			"valid": true,
 			"instance": {
@@ -1471,7 +1476,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "text: pattern (前方一致)",
 			"valid": true,
 			"instance": {
@@ -1489,7 +1494,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "text: 複数指定(AND)",
 			"valid": true,
 			"instance": {
@@ -1509,9 +1514,10 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "text: 不正な正規表現",
-			"valid": false,
+			"valid": true,
+			"valid@when_formatAssertion": false,
 			"instance": {
 				"contents": [
 					{
@@ -1527,7 +1533,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "text: 未知キー",
 			"valid": false,
 			"instance": {
@@ -1545,7 +1551,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "text: contain は不可",
 			"valid": false,
 			"instance": {
@@ -1563,7 +1569,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "text: schema のみ",
 			"valid": true,
 			"instance": {
@@ -1580,7 +1586,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "json: properties + contain",
 			"valid": true,
 			"instance": {
@@ -1603,7 +1609,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "json: contain の値つき($schema)",
 			"valid": true,
 			"instance": {
@@ -1623,7 +1629,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "json: contain が文字列は不可",
 			"valid": false,
 			"instance": {
@@ -1641,7 +1647,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "json: json-schema",
 			"valid": true,
 			"instance": {
@@ -1662,7 +1668,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "json: json-schema が不正(type が数値)",
 			"valid": false,
 			"instance": {
@@ -1682,7 +1688,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "json: const は不可",
 			"valid": false,
 			"instance": {
@@ -1700,7 +1706,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "data: schema 必須",
 			"valid": false,
 			"instance": {
@@ -1717,7 +1723,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/file-data",
+			"group-pointer": "/$defs/file-data",
 			"label": "data: 未知の schema",
 			"valid": false,
 			"instance": {
@@ -1734,7 +1740,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/reference",
+			"group-pointer": "/$defs/reference",
 			"label": "struct: $defs と $ref",
 			"valid": true,
 			"instance": {
@@ -1758,7 +1764,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/reference",
+			"group-pointer": "/$defs/reference",
 			"label": "$ref と他の条件を併記",
 			"valid": true,
 			"instance": {
@@ -1778,7 +1784,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/reference",
+			"group-pointer": "/$defs/reference",
 			"label": "再帰的な定義(自己参照)",
 			"valid": true,
 			"instance": {
@@ -1795,7 +1801,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/reference",
+			"group-pointer": "/$defs/reference",
 			"label": "$defs の値が不正なノード",
 			"valid": false,
 			"instance": {
@@ -1808,7 +1814,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/reference",
+			"group-pointer": "/$defs/reference",
 			"label": "$defs の値がノードでない",
 			"valid": false,
 			"instance": {
@@ -1819,7 +1825,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/reference",
+			"group-pointer": "/$defs/reference",
 			"label": "$ref が文字列でない",
 			"valid": false,
 			"instance": {
@@ -1832,7 +1838,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/reference",
+			"group-pointer": "/$defs/reference",
 			"label": "$ref が空文字",
 			"valid": false,
 			"instance": {
@@ -1845,7 +1851,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/reference",
+			"group-pointer": "/$defs/reference",
 			"label": "ノード内にも $defs を置ける",
 			"valid": true,
 			"instance": {
@@ -1866,7 +1872,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/reference",
+			"group-pointer": "/$defs/reference",
 			"label": "logic の中でも $ref",
 			"valid": true,
 			"instance": {
@@ -1886,7 +1892,7 @@
 
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "directory: allOf で配列条件を合成",
 			"valid": true,
 			"instance": {
@@ -1912,7 +1918,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "directory: anyOf",
 			"valid": true,
 			"instance": {
@@ -1934,7 +1940,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "directory: oneOf",
 			"valid": true,
 			"instance": {
@@ -1956,7 +1962,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "directory: not",
 			"valid": true,
 			"instance": {
@@ -1971,7 +1977,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "file: allOf / anyOf",
 			"valid": true,
 			"instance": {
@@ -1993,7 +1999,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "link: oneOf",
 			"valid": true,
 			"instance": {
@@ -2015,7 +2021,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "allOf: 空配列は不可",
 			"valid": false,
 			"instance": {
@@ -2024,7 +2030,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "allOf: 要素が不正なノード",
 			"valid": false,
 			"instance": {
@@ -2037,7 +2043,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "not: 配列は不可(単一ノード)",
 			"valid": false,
 			"instance": {
@@ -2050,7 +2056,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "if / then / else",
 			"valid": true,
 			"instance": {
@@ -2077,7 +2083,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "if のみ",
 			"valid": true,
 			"instance": {
@@ -2092,7 +2098,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "then のみ(if 無しは無視される=構文上は可)",
 			"valid": true,
 			"instance": {
@@ -2107,7 +2113,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "if が不正なノード",
 			"valid": false,
 			"instance": {
@@ -2122,7 +2128,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "logic は struct(ルート)でも使える",
 			"valid": true,
 			"instance": {
@@ -2136,7 +2142,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "logic の入れ子",
 			"valid": true,
 			"instance": {
@@ -2158,7 +2164,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/logic",
+			"group-pointer": "/$defs/logic",
 			"label": "旧 jsonbase 形式の要素(contains に整数)は不可",
 			"valid": false,
 			"instance": {
@@ -2171,7 +2177,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "minItems / maxItems",
 
@@ -2183,7 +2189,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "minItems 負数は不可",
 
@@ -2194,7 +2200,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "items: ノード",
 
@@ -2213,7 +2219,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "items: 配列は不可(単一ノード)",
 
@@ -2229,7 +2235,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "contains + minContains:0 + maxContains",
 
@@ -2245,7 +2251,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "minContains 負数は不可",
 
@@ -2260,7 +2266,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "contains のノード内の未知プロパティ",
 
@@ -2273,7 +2279,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "const: ノード配列",
 
@@ -2294,7 +2300,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "const: 配列でない値は不可",
 
@@ -2305,7 +2311,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "const: 要素が不正なノード",
 
@@ -2320,7 +2326,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "enum: 配列の配列",
 
@@ -2348,7 +2354,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "enum: 要素が配列でない",
 
@@ -2364,7 +2370,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "contents + minItems + maxItems 併用",
 
@@ -2382,7 +2388,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "contents: [] (空ディレクトリ)",
 
@@ -2393,7 +2399,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "子ディレクトリにも配列系",
 
@@ -2414,7 +2420,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "配列系を file に付けると不可",
 
@@ -2431,7 +2437,7 @@
 		},
 		{
 			"group": "property",
-			"pointer": "/$defs/directory-body",
+			"group-pointer": "/$defs/directory-body",
 			"name": "JSONSchema-Array base",
 			"label": "type 省略ノードに contains は可",
 
