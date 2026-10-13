@@ -14,11 +14,6 @@
 			"type": "array",
 			"items": {
 				"type": "object",
-				"properties": {
-					"group": {
-						"$ref": "./common.schema.json#/$defs/group"
-					}
-				},
 				"if": {
 					"properties": {
 						"valid": { "const": true }
