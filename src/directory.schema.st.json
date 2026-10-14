@@ -1,0 +1,4 @@
+{
+	"$schema": "/Users/rin/mydev/schema/jsonschema-extends-expansion/src/nouse_dynamicAnchor/extends.schema.json",
+	"$ref": "./directory.schema.json#/$defs/struct"
+}

@@ -1,6 +1,6 @@
 {
 	"$schema": "/Users/rin/mydev/schema/jsonschema-extends-expansion/src/nouse_dynamicAnchor/extends.schema.json",
-	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)を禁止し、type(単一)と name(リテラル)を必須とする。それ以外の制約系プロパティは実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / contains / items / minItems など)が決める。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。x-strict-extends,x-extension については /Users/rin/mydev/schema/jsonschema-extends-expansion で定義されている",
+	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とする。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。x-strict-extends,x-extension については /Users/rin/mydev/schema/jsonschema-extends-expansion で定義されている。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。",
 	"title": "Directory Structure Schema",
 	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。",
 	"type": "array",
@@ -13,7 +13,7 @@
 	},
 	"$defs": {
 		"struct": {
-			"$comment": "concrete: true のとき、contents 配下の全ノードに #/$defs/concrete-node を適用し、ルート自身にも論理演算子と $ref・$defs の禁止を課す。JSON Schemaには親のフラグを子へ伝播する標準機構がないため、再帰的な concrete-node 定義で実現している。",
+			"$comment": "concrete: true のとき、ルート自身に論理演算子と $ref・$defs の禁止を課し、さらに concrete-rules を適用する(opContents・items・const・enum の禁止、contents 配下全ノードへの concrete-node の適用、contains の値への concrete-assertion の適用)。JSON Schemaには親のフラグを子へ伝播する標準機構がないため、再帰的な concrete-node / concrete-assertion 定義で実現している。",
 			"type": "object",
 			"unevaluatedProperties": false,
 			"x-extension": true,
@@ -37,7 +37,7 @@
 					"type": "boolean",
 					"default": false,
 					"title": "実体記述モード",
-					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)と `$ref` / `$defs` を禁止し、配下のノードには `type`(単一)と `name`(リテラル)を必須とします。それ以外の制約プロパティ(`contains`, `minItems`など)は、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として扱われ、他のプロパティから導出可能であっても矛盾や冗長とはみなされません"
+					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで、論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` を禁止し、子要素は `contents` だけで記述します。`contents` 配下のノードには `type`(単一)と `name`(リテラル)を必須とします。`contains` / `minItems` / `maxContains` などは、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として許可され、他のプロパティから導出可能であっても矛盾や冗長とはみなされません"
 				}
 			},
 			"allOf": [
@@ -58,16 +58,31 @@
 					"then": false,
 					"else": false,
 					"$ref": false,
-					"$defs": false,
-					"contents": { "items": { "$ref": "#/$defs/concrete-node" } }
-				}
+					"$defs": false
+				},
+				"$ref": "#/$defs/concrete-rules"
+			}
+		},
+		"concrete-rules": {
+			"$comment": "concrete モードの伝播規則(struct のルートと concrete-node が共有する)。(1) 子の記述は contents に一本化するため、opContents / items / const / enum を禁止する。(2) contents の子は concrete-node(type と name 必須)。(3) contains は『満たしている制約の記録』として許可するが、値は concrete-assertion に従う。",
+			"title": "実体モードの伝播規則",
+			"properties": {
+				"opContents": false,
+				"items": false,
+				"const": false,
+				"enum": false,
+				"contents": { "items": { "$ref": "#/$defs/concrete-node" } },
+				"contains": { "$ref": "#/$defs/concrete-assertion" }
 			}
 		},
 		"concrete-node": {
-			"$comment": "tree-node に加えて、実体を特定する type(単一)と name(リテラル)を必須にし、論理演算子と $ref・$defs を禁止する。contents を再帰的に辿ることで、struct の concrete フラグを配下全体へ伝播させる。",
+			"$comment": "tree-node に concrete-rules を AND し、実体を特定する type(単一)と name(リテラル)を必須にし、論理演算子と $ref・$defs を禁止する。contents を再帰的に辿ることで、struct の concrete フラグを配下全体へ伝播させる。",
 			"title": "実体ノード",
-			"description": "concrete モードで許可されるノード。`type`(単一)と `name`(リテラル)は必須。論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)と `$ref` / `$defs` は指定不可。それ以外のプロパティは補足として任意に併記できる",
-			"$ref": "#/$defs/tree-node",
+			"description": "concrete モードで許可されるノード。`type`(単一)と `name`(リテラル)は必須。論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` は指定不可。それ以外のプロパティは補足として任意に併記できる",
+			"allOf": [
+				{ "$ref": "#/$defs/tree-node" },
+				{ "$ref": "#/$defs/concrete-rules" }
+			],
 			"required": ["type", "name"],
 			"properties": {
 				"type": { "$ref": "#/$defs/node-kind" },
@@ -80,8 +95,30 @@
 				"then": false,
 				"else": false,
 				"$ref": false,
+				"$defs": false
+			}
+		},
+		"concrete-assertion": {
+			"$comment": "実体モード内のアサーション用ノード(contains の値)。type・name は任意だが、論理演算子・$ref・$defs・opContents・items・const・enum は禁止。contents と contains の値には再帰的に同じ制限を課す。",
+			"title": "実体モードのアサーション",
+			"description": "concrete モードの `contains` の値に使われるノード。実体がその条件を満たしていることの記録であり、`type` と `name` は任意。論理演算子、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` は指定不可",
+			"$ref": "#/$defs/tree-node",
+			"properties": {
+				"allOf": false,
+				"anyOf": false,
+				"oneOf": false,
+				"not": false,
+				"if": false,
+				"then": false,
+				"else": false,
+				"$ref": false,
 				"$defs": false,
-				"contents": { "items": { "$ref": "#/$defs/concrete-node" } }
+				"opContents": false,
+				"items": false,
+				"const": false,
+				"enum": false,
+				"contents": { "items": { "$ref": "#/$defs/concrete-assertion" } },
+				"contains": { "$ref": "#/$defs/concrete-assertion" }
 			}
 		},
 		"tree-node": {
@@ -389,7 +426,7 @@
 			}
 		},
 		"directory-body": {
-			"$comment": "contents 以外の配列系プロパティは JSON Schema Draft 2020-12 の Array 仕様に準じる(子要素の集まりを配列とみなす)。ただしディレクトリの子に順序はないため、順序に依存する prefixItems / unevaluatedItems は採用せず、const / enum は順不同の集合として扱う。",
+			"$comment": "contents / opContents 以外の配列系プロパティは JSON Schema Draft 2020-12 の Array 仕様に準じる(子要素の集まりを配列とみなす)。ただしディレクトリの子に順序はないため、順序に依存する prefixItems / unevaluatedItems は採用せず、const / enum は順不同の集合として扱う。contents / opContents は items.anyOf と contains に展開される糖衣プロパティであり、空配列に特別な意味(maxItems: 0 への展開)は持たせない(minItems: 1 で空配列を禁止する)。空ディレクトリは maxItems: 0 で表す。",
 			"type": "object",
 			"title": "ディレクトリ固有プロパティ",
 			"description": "ディレクトリに固有のプロパティ。子要素の存在・個数・閉じ方は、ここの配列系プロパティだけが決める。ディレクトリ以外のノードでは、これらは成立扱いになる(JSON Schemaと同じ)",
@@ -397,9 +434,19 @@
 			"properties": {
 				"contents": {
 					"type": "array",
-					"title": "直下の子要素",
-					"description": "直下の子要素が指定した配列と完全に一致し、指定外のノードを許容しない閉鎖系のディレクトリ構成を表します。「必須だが他も許す」場合は `contents` ではなく `allOf: [{contains: X}]` を使用してください。",
-					"$comment": "【展開ロジック】各要素 X は次のように展開される: `allOf` に `{contains: X, minContains: 1}` を追加する(X に該当する子が1つ以上存在する)。さらに `items` に `{anyOf: [全要素]}` を AND で追加する(どの子もいずれかの要素に該当する=記述にない子は許さない)。空配列は `maxItems: 0`(空ディレクトリ)に展開される。1つの子が複数の要素を同時に満たしてもよい(個数の割り当てはしない)",
+					"minItems": 1,
+					"title": "必須の子要素(閉鎖)",
+					"description": "直下に必ず存在する子要素。各要素に該当する子が1つ以上存在し、かつすべての子が `contents` または `opContents` のいずれかの要素に該当すること(記述にない子は許さない)。1つの子が複数の要素を同時に満たしてもよく、個数の割り当てはしない。子の集合の1対1の一致が必要なら `const`、必須だが他も許す場合は `contains` を使う。空ディレクトリは `maxItems: 0` で表す。",
+					"$comment": "【展開ロジック】contents の各要素 X について allOf に {contains: X, minContains: 1} を追加する。contents と opContents のどちらかが存在するとき、items に {anyOf: [contents の全要素, opContents の全要素]} を AND で追加する。",
+					"items": { "$ref": "#/$defs/tree-node" }
+				},
+				"opContents": {
+					"x-extension": true,
+					"type": "array",
+					"minItems": 1,
+					"title": "任意の子要素(閉鎖)",
+					"description": "直下に存在してもしなくてもよい子要素。存在を要求しないが、閉鎖の許可リストには加わる。`opContents` だけを書いた場合も、記述にない子は許さない。パターン名の要素は0個以上と解釈する。",
+					"$comment": "【展開ロジック】opContents の要素は contains を生成せず、items.anyOf にのみ追加される。",
 					"items": { "$ref": "#/$defs/tree-node" }
 				},
 				"minItems": {
@@ -414,7 +461,7 @@
 					"type": "integer",
 					"minimum": 0,
 					"title": "子要素数の上限",
-					"description": "直下の子要素の個数がこの値以下"
+					"description": "直下の子要素の個数がこの値以下。0 なら空ディレクトリ"
 				},
 				"items": {
 					"x-extension": true,
