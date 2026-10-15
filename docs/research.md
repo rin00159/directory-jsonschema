@@ -17,3 +17,17 @@ typeを明示できず、
 意味定義や説明の方法も用意されていない。
 
 参考程度になるだけで、ベースにはとてもできない。
+
+
+
+
+
+
+
+
+#
+作成
+https://claude.ai/chat/2827ec3e-9dee-4ac9-8ff7-5fba3b3e4dca
+
+レビュー・改善
+https://claude.ai/chat/1c706c00-dff9-412f-b3cb-3321c4259cbf

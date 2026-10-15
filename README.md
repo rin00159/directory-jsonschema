@@ -18,12 +18,3 @@ https://gemini.google.com/app/72b2c95c13ddde7c
 
 yamlのマルチドキュメントストリーム
 #
-yamlにおいて、
-「# yaml-language-server: $schema /path/to/stream.schema.json」形式の検証schema指定は絶対pathに正規化したうえで、$schemaプロパティ指定に解釈される。
-
-以下の様な一般的な命名のディレクティブならば自動で変換するし、併用も可能だが衝突した場合はerrorを返す。
-・yaml-language-server
-・$schema
-
-
-jsonschemaでも絶対pathへの解決は実装する。

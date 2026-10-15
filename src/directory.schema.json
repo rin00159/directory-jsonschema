@@ -1,8 +1,8 @@
 {
 	"$schema": "/Users/rin/mydev/schema/jsonschema-extends-expansion/src/nouse_dynamicAnchor/extends.schema.json",
-	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とする。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。x-strict-extends,x-extension については /Users/rin/mydev/schema/jsonschema-extends-expansion で定義されている。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。",
+	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とし、directory は contents か maxItems: 0 のどちらか、link は target を必須とする(実体の完全な記述)。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。x-strict-extends,x-extension については /Users/rin/mydev/schema/jsonschema-extends-expansion で定義されている。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。メタデータ系は node-metadata(mode / owner / group / mtime / ctime とその -human 版)で表し、tree -J の user / group 名 / time / inode / error は受理しない。",
 	"title": "Directory Structure Schema",
-	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。",
+	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力(ノードの配列と、ちょうど1つの `tree-report`。report の位置は問わない)、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。`$ref` の基準はインスタンス文書のルート。`name` は「相対位置」(`.` / `..`)ではなくファイルオブジェクトの名前を表すため、`tree -J` のルートの `name: \".\"` は受理しない(互換より仕様を優先)。`tree -J` のメタデータ出力のうち受理するのは `mode` のみで、`user` / `group`(名前文字列)/ `time` / `inode` / `error` は受理しない(メタデータは `node-metadata` のプロパティで表す。`mode` 以外は拡張プロパティ。特に `group` は GID の整数で、`tree -J` の同名キーとは型が異なる)。",
 	"type": "array",
 	"x-strict-extends": true,
 	"items": {
@@ -11,6 +11,9 @@
 			{ "$ref": "#/$defs/tree-report" }
 		]
 	},
+	"contains": { "$ref": "#/$defs/tree-report" },
+	"minContains": 1,
+	"maxContains": 1,
 	"$defs": {
 		"struct": {
 			"$comment": "concrete: true のとき、ルート自身に論理演算子と $ref・$defs の禁止を課し、さらに concrete-rules を適用する(opContents・items・const・enum の禁止、contents 配下全ノードへの concrete-node の適用、contains の値への concrete-assertion の適用)。JSON Schemaには親のフラグを子へ伝播する標準機構がないため、再帰的な concrete-node / concrete-assertion 定義で実現している。",
@@ -18,7 +21,7 @@
 			"unevaluatedProperties": false,
 			"x-extension": true,
 			"title": "ディレクトリ構造定義",
-			"description": "ルートディレクトリの構造やメタデータを定義するオブジェクト。`$schema` に `#/$defs/struct` を指定して使う。ルートはディレクトリ固有プロパティ(`directory-body`)と参照(`$ref` / `$defs`)を持てる",
+			"description": "ルートディレクトリの構造やメタデータを定義するオブジェクト。`$schema` に `#/$defs/struct` を指定して使う。ルートは共通プロパティ(`common`: `name` / `size` / `description` / `detail` / `node-metadata` / `$ref` / `$defs`)とディレクトリ固有プロパティ(`directory-body`)を持てる。常にディレクトリなので `type` は指定できない",
 			"properties": {
 				"$schema": {
 					"type": "string",
@@ -28,40 +31,40 @@
 				"report": {
 					"$ref": "#/$defs/tree-report"
 				},
-				"description": {
-					"type": "string",
-					"title": "ディレクトリの説明",
-					"description": "このディレクトリ構造全体に関する説明や目的"
-				},
+				"type": false,
 				"concrete": {
 					"type": "boolean",
 					"default": false,
 					"title": "実体記述モード",
-					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで、論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` を禁止し、子要素は `contents` だけで記述します。`contents` 配下のノードには `type`(単一)と `name`(リテラル)を必須とします。`contains` / `minItems` / `maxContains` などは、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として許可され、他のプロパティから導出可能であっても矛盾や冗長とはみなされません"
+					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで、論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` を禁止し、子要素は `contents` だけで記述します。`contents` 配下のノードには `type`(単一)と `name`(リテラル)を必須とし、directory は `contents` か `maxItems: 0`(空ディレクトリ)のいずれか、link は `target` も必須とします(実体を完全に記述させるため)。ルート自身も `contents` か `maxItems: 0` のいずれかが必須です。`contains` / `minItems` / `maxContains` などは、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として許可され、他のプロパティから導出可能であっても矛盾や冗長とはみなされません。アサーションと `contents` の実際の内容の整合はスキーマでは検証せず、ツール側の責務です(スキーマが禁止するのは `contents` と `maxItems: 0` の併記のみ)"
 				}
 			},
 			"allOf": [
 				{ "$ref": "#/$defs/directory-body" },
-				{ "$ref": "#/$defs/reference" }
-			],
-			"if": {
-				"required": ["concrete"],
-				"properties": { "concrete": { "const": true } }
-			},
-			"then": {
-				"properties": {
-					"allOf": false,
-					"anyOf": false,
-					"oneOf": false,
-					"not": false,
-					"if": false,
-					"then": false,
-					"else": false,
-					"$ref": false,
-					"$defs": false
-				},
-				"$ref": "#/$defs/concrete-rules"
-			}
+				{ "$ref": "#/$defs/common" },
+				{
+					"$comment": "if / then は allOf の要素に置く。直下に置くと、Ajv で unevaluatedProperties が if 不成立時に allOf 由来のプロパティを未評価と誤判定するため(仕様上は同じ意味)。",
+					"if": {
+						"required": ["concrete"],
+						"properties": { "concrete": { "const": true } }
+					},
+					"then": {
+						"properties": {
+							"allOf": false,
+							"anyOf": false,
+							"oneOf": false,
+							"not": false,
+							"if": false,
+							"then": false,
+							"else": false,
+							"$ref": false,
+							"$defs": false
+						},
+						"allOf": [{ "$ref": "#/$defs/concrete-directory-closed" }],
+						"$ref": "#/$defs/concrete-rules"
+					}
+				}
+			]
 		},
 		"concrete-rules": {
 			"$comment": "concrete モードの伝播規則(struct のルートと concrete-node が共有する)。(1) 子の記述は contents に一本化するため、opContents / items / const / enum を禁止する。(2) contents の子は concrete-node(type と name 必須)。(3) contains は『満たしている制約の記録』として許可するが、値は concrete-assertion に従う。",
@@ -75,10 +78,42 @@
 				"contains": { "$ref": "#/$defs/concrete-assertion" }
 			}
 		},
+		"concrete-directory-closed": {
+			"$comment": "実体の directory が『子の有無を確定している』ことを要求する。contents(1個以上)を持つか、maxItems: 0(空ディレクトリ)を持つかのどちらか。contents と maxItems: 0 の併記は矛盾なので禁止する(contents がある場合の maxItems は 1 以上)。それ以外の矛盾(maxItems が contents の件数未満など)はツール側の責務。",
+			"title": "実体ディレクトリの子の確定",
+			"description": "実体を記述する directory は、`contents` を持つか、`maxItems: 0` で空ディレクトリを明示するか、のどちらかが必須。子が未記述なのか空なのかを区別するための要件",
+			"anyOf": [
+				{
+					"required": ["contents"],
+					"properties": { "maxItems": { "minimum": 1 } }
+				},
+				{
+					"required": ["maxItems"],
+					"properties": { "maxItems": { "const": 0 } },
+					"not": { "required": ["contents"] }
+				}
+			]
+		},
 		"concrete-node": {
-			"$comment": "tree-node に concrete-rules を AND し、実体を特定する type(単一)と name(リテラル)を必須にし、論理演算子と $ref・$defs を禁止する。contents を再帰的に辿ることで、struct の concrete フラグを配下全体へ伝播させる。",
+			"$comment": "literal-node に完全性の要件を AND する。directory は子の有無が確定していること(contents か maxItems: 0)、link は target を持つことを要求する。file には追加要件を課さない(size などは任意の補足)。",
 			"title": "実体ノード",
-			"description": "concrete モードで許可されるノード。`type`(単一)と `name`(リテラル)は必須。論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` は指定不可。それ以外のプロパティは補足として任意に併記できる",
+			"description": "concrete モードの `contents` 配下で許可されるノード。`literal-node` の制限(`type` 単一・`name` リテラル必須、論理演算子 / `$ref` / `$defs` / `opContents` / `items` / `const` / `enum` 不可)に加え、directory は `contents` か `maxItems: 0`、link は `target` が必須",
+			"allOf": [
+				{ "$ref": "#/$defs/literal-node" },
+				{
+					"if": { "$ref": "#/$defs/applies-directory" },
+					"then": { "$ref": "#/$defs/concrete-directory-closed" }
+				},
+				{
+					"if": { "$ref": "#/$defs/applies-link" },
+					"then": { "required": ["target"] }
+				}
+			]
+		},
+		"literal-node": {
+			"$comment": "(concrete-node の土台、および const / enum の要素)tree-node に concrete-rules を AND し、実体を特定する type(単一)と name(リテラル)を必須にし、論理演算子と $ref・$defs を禁止する。contents を再帰的に辿ることで、struct の concrete フラグを配下全体へ伝播させる。",
+			"title": "リテラルノード",
+			"description": "name で一意に特定できるノード。`concrete-node` の土台であり、`const` / `enum` の要素にも使う。`type`(単一)と `name`(リテラル)は必須。論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` は指定不可。それ以外のプロパティは補足として任意に併記できる",
 			"allOf": [
 				{ "$ref": "#/$defs/tree-node" },
 				{ "$ref": "#/$defs/concrete-rules" }
@@ -296,7 +331,7 @@
 		"name-literal": {
 			"type": "string",
 			"minLength": 1,
-			"pattern": "^(?!\\.{1,2}$)[^/\\\\]+$",
+			"pattern": "^(?!\\.{1,2}$)(?!\\s)(?!.*\\s$)[^/\\\\\\x00-\\x1F\\x7F]+$",
 			"title": "名前(リテラル)",
 			"description": "パス区切り文字(`/` `\\`)を含まず、`.` `..` でもない単一の名前(正規化を優先)"
 		},
@@ -327,7 +362,7 @@
 					"type": "string",
 					"minLength": 1,
 					"title": "ノードの参照",
-					"description": "再利用するノード定義への参照(URI参照。通常は `#/$defs/名前`)。解決はツール側の責務で、スキーマでは検証しません"
+					"description": "再利用するノード定義への参照(URI参照。通常は `#/$defs/名前`)。基準(`#`)はインスタンス文書のルートで、`#/$defs/名前` はルートに置かれた `$defs` の定義を指す。自己参照(再帰定義)も書ける。解決はツール側の責務で、スキーマでは検証しません"
 				},
 				"$defs": {
 					"x-extension": true,
@@ -341,8 +376,11 @@
 		"common": {
 			"type": "object",
 			"title": "共通プロパティ",
-			"description": "ディレクトリ・ファイル・リンクで共通のプロパティ",
-			"allOf": [{ "$ref": "#/$defs/reference" }],
+			"description": "ディレクトリ・ファイル・リンクで共通のプロパティ(メタデータは `node-metadata`)",
+			"allOf": [
+				{ "$ref": "#/$defs/reference" },
+				{ "$ref": "#/$defs/node-metadata" }
+			],
 			"properties": {
 				"type": { "$ref": "#/$defs/node-type" },
 				"name": {
@@ -369,6 +407,77 @@
 					"title": "詳細情報",
 					"description": "このノードに関するより詳しい補足情報",
 					"x-extension": true
+				}
+			}
+		},
+		"node-metadata": {
+			"type": "object",
+			"title": "インフラ・構成メタデータ",
+			"description": "Ansible等の構成管理ツールに相当する属性情報。`mode` は `tree -J -p` の出力に存在するため拡張プロパティではなく、それ以外のプロパティが拡張プロパティ(`x-extension`)。ファイル・ディレクトリ・リンクで共通して利用可能。なお、owner, group, mtime, ctime にはそれぞれ人間が記述・確認しやすい形式用のプロパティ(-human サフィックス付き)が用意されていますが、それぞれ正本は元のプロパティ(サフィックスなし)の方であり、どちらか片方のみを記すならば元の方のプロパティだけを書くべきです。",
+			"properties": {
+				"mode": {
+					"title": "パーミッション (mode)",
+					"description": "アクセス権限。文字列での8進数表現(例: '0644')または整数を許容します。",
+					"oneOf": [
+						{ "type": "string", "pattern": "^0?[0-7]{3,4}$" },
+						{ "type": "integer", "minimum": 0, "maximum": 4095 }
+					]
+				},
+				"owner": {
+					"x-extension": true,
+					"type": "integer",
+					"minimum": 0,
+					"title": "所有者 UID (owner)",
+					"description": "ファイルやディレクトリを所有するシステム固有のUID。このプロパティが正本となります。"
+				},
+				"owner-human": {
+					"x-extension": true,
+					"type": "string",
+					"minLength": 1,
+					"title": "所有ユーザー名 (owner-human)",
+					"description": "人間が記述・確認しやすいユーザー名(文字列)。正本は owner です。"
+				},
+				"group": {
+					"x-extension": true,
+					"type": "integer",
+					"minimum": 0,
+					"title": "所有グループ GID (group)",
+					"description": "ファイルやディレクトリを所有するシステム固有のGID。このプロパティが正本となります。`tree -J` の `group`(グループ名の文字列)とは型が異なります。"
+				},
+				"group-human": {
+					"x-extension": true,
+					"type": "string",
+					"minLength": 1,
+					"title": "所有グループ名 (group-human)",
+					"description": "人間が記述・確認しやすいグループ名(文字列)。正本は group です。"
+				},
+				"mtime": {
+					"x-extension": true,
+					"type": "integer",
+					"minimum": 0,
+					"title": "最終更新日時 (mtime)",
+					"description": "ファイル内容の最終更新日時のUNIXエポック秒。このプロパティが正本となります。"
+				},
+				"mtime-human": {
+					"x-extension": true,
+					"type": "string",
+					"format": "date-time",
+					"title": "最終更新日時 文字列表現 (mtime-human)",
+					"description": "人間が記述・確認しやすいISO 8601フォーマット等の日時文字列。正本は mtime です。"
+				},
+				"ctime": {
+					"x-extension": true,
+					"type": "integer",
+					"minimum": 0,
+					"title": "作成・メタデータ変更日時 (ctime)",
+					"description": "ファイルの作成、またはメタデータの変更日時のUNIXエポック秒。このプロパティが正本となります。"
+				},
+				"ctime-human": {
+					"x-extension": true,
+					"type": "string",
+					"format": "date-time",
+					"title": "作成日時 文字列表現 (ctime-human)",
+					"description": "人間が記述・確認しやすいISO 8601フォーマット等の日時文字列。正本は ctime です。"
 				}
 			}
 		},
@@ -436,7 +545,7 @@
 					"type": "array",
 					"minItems": 1,
 					"title": "必須の子要素(閉鎖)",
-					"description": "直下に必ず存在する子要素。各要素に該当する子が1つ以上存在し、かつすべての子が `contents` または `opContents` のいずれかの要素に該当すること(記述にない子は許さない)。1つの子が複数の要素を同時に満たしてもよく、個数の割り当てはしない。子の集合の1対1の一致が必要なら `const`、必須だが他も許す場合は `contains` を使う。空ディレクトリは `maxItems: 0` で表す。",
+					"description": "直下に必ず存在する子要素。各要素に該当する子が1つ以上存在し、かつすべての子が `contents` または `opContents` のいずれかの要素に該当すること(記述にない子は許さない)。1つの子が複数の要素を同時に満たしてもよく、個数の割り当てはしない。子の集合の1対1の一致が必要なら `const`、必須だが他も許す場合は `contains` を使う。個別の個数指定は `contains` + `minContains` / `maxContains` を使う。空ディレクトリは `maxItems: 0` で表す。",
 					"$comment": "【展開ロジック】contents の各要素 X について allOf に {contains: X, minContains: 1} を追加する。contents と opContents のどちらかが存在するとき、items に {anyOf: [contents の全要素, opContents の全要素]} を AND で追加する。",
 					"items": { "$ref": "#/$defs/tree-node" }
 				},
@@ -473,7 +582,7 @@
 					"x-extension": true,
 					"$ref": "#/$defs/tree-node",
 					"title": "存在する子要素",
-					"description": "このノードに該当する子要素が `minContains` 個以上(`maxContains` 個以下)存在すること"
+					"description": "このノードに該当する子要素が `minContains` 個以上(`maxContains` 個以下)存在すること。個別の個数指定(例: `*.ts` が2個以上)は `contains` + `minContains` / `maxContains` で書く。複数パターンの個数指定は `allOf` に `contains` を並べる(concrete モードでは `contents` に実体を列挙するので不要)"
 				},
 				"minContains": {
 					"x-extension": true,
@@ -493,19 +602,19 @@
 				"const": {
 					"x-extension": true,
 					"type": "array",
-					"items": { "$ref": "#/$defs/tree-node" },
+					"items": { "$ref": "#/$defs/literal-node" },
 					"title": "子要素の完全一致(順不同)",
-					"description": "子要素の集合がこの配列と一致すること。順序は問わず、配列の各要素と子要素が1対1に対応する"
+					"description": "子要素の集合がこの配列と一致すること。順序は問わない。各要素は `literal-node`(`type` が単一で `name` がリテラル。論理演算子・`$ref`・`opContents`・`items`・`const`・`enum` は不可)で、`name` は互いに異なること(同名の要素は充足不能)。`name` がリテラルでディレクトリ内の名前は一意なので、子と要素は name で一意に対応し、割り当て(マッチング)問題は生じない。『すべての子がいずれかの要素に該当する』かつ『すべての要素に該当する子が存在する』ときに一致とする"
 				},
 				"enum": {
 					"x-extension": true,
 					"type": "array",
 					"items": {
 						"type": "array",
-						"items": { "$ref": "#/$defs/tree-node" }
+						"items": { "$ref": "#/$defs/literal-node" }
 					},
 					"title": "子要素の候補(順不同)",
-					"description": "子要素の集合が、ここに列挙した配列のいずれか1つと一致すること(`const` と同じ規則)"
+					"description": "子要素の集合が、ここに列挙した配列のいずれか1つと一致すること。各配列とその要素には `const` と同じ規則(要素は `literal-node`、`name` は配列内で互いに異なる)を課す"
 				}
 			}
 		},
@@ -544,8 +653,8 @@
 			"properties": {
 				"schema": {
 					"title": "データ検証スキーマ種別",
-					"description": "ファイル内容をテキストとして検証するか、JSONとして検証するかを指定する識別子",
-					"enum": ["text", "json"]
+					"description": "ファイル内容をテキストとして検証するか、JSON として検証するか、YAML として検証するかを指定する識別子",
+					"enum": ["text", "json", "yaml"]
 				}
 			},
 			"allOf": [
@@ -562,6 +671,13 @@
 						"properties": { "schema": { "const": "json" } }
 					},
 					"then": { "$ref": "#/$defs/json-data" }
+				},
+				{
+					"if": {
+						"required": ["schema"],
+						"properties": { "schema": { "const": "yaml" } }
+					},
+					"then": { "$ref": "#/$defs/yaml-data" }
 				}
 			]
 		},
@@ -580,9 +696,33 @@
 			},
 			"allOf": [{ "$ref": "#/$defs/string-schema" }]
 		},
+		"json-data-body": {
+			"$comment": "json-data と yaml-data が共有するプロパティ定義。json-data を直接 $ref すると schema の const: json が yaml と衝突するため、schema を除いた本体をここに切り出している。",
+			"title": "JSON / YAML 共通のデータ制約",
+			"description": "パース後のデータに対する制約。`const-properties` / `contains-properties` はトップレベルがオブジェクトの場合のプロパティに対する制約、`json-schema` はデータ全体に対する JSON Schema。トップレベルが配列などオブジェクト以外のとき(YAML のマルチドキュメントを含む)は `json-schema` を使う",
+			"type": "object",
+			"x-extension": true,
+			"properties": {
+				"const-properties": {
+					"type": "object",
+					"title": "完全プロパティ定義",
+					"description": "データのトップレベルが、ここで指定したオブジェクトリテラルと完全に一致する(キーと値の過不足がない)ことを要求します。値はJSON Schemaではなく期待する実データを直接記述します"
+				},
+				"contains-properties": {
+					"type": "object",
+					"title": "部分プロパティ定義",
+					"description": "データのトップレベルに、ここで指定したオブジェクトリテラルのプロパティが存在し、その値も完全に一致することを要求します。値はJSON Schemaではなく期待する実データを直接記述します。指定していないプロパティは不問です"
+				},
+				"json-schema": {
+					"$ref": "https://json-schema.org/draft/2020-12/schema",
+					"title": "JSON Schema による検証",
+					"description": "データ全体に適用するJSON Schema(JSON Schema 2020-12 のメタスキーマに従う)"
+				}
+			}
+		},
 		"json-data": {
 			"title": "JSONファイル定義",
-			"description": "JSONファイルの内容に対する制約。`properties` / `contain` はトップレベルのプロパティに対する制約、`json-schema` はJSON全体に対するJSON Schema",
+			"description": "JSONファイルの内容に対する制約。指定できるプロパティは `json-data-body` を参照",
 			"type": "object",
 			"unevaluatedProperties": false,
 			"x-extension": true,
@@ -591,23 +731,24 @@
 					"title": "スキーマ種別 (JSON)",
 					"description": "JSONデータとしての検証を指定",
 					"const": "json"
-				},
-				"properties": {
-					"type": "object",
-					"title": "完全プロパティ定義",
-					"description": "データのトップレベルが、ここで指定したオブジェクトリテラルと完全に一致する(キーと値の過不足がない)ことを要求します。値はJSON Schemaではなく期待する実データを直接記述します"
-				},
-				"contain": {
-					"type": "object",
-					"title": "部分プロパティ定義",
-					"description": "データのトップレベルに、ここで指定したオブジェクトリテラルのプロパティが存在し、その値も完全に一致することを要求します。値はJSON Schemaではなく期待する実データを直接記述します。指定していないプロパティは不問です"
-				},
-				"json-schema": {
-					"$ref": "https://json-schema.org/draft/2020-12/schema",
-					"title": "JSON Schema による検証",
-					"description": "JSON全体に適用するJSON Schema(JSON Schema 2020-12 のメタスキーマに従う)"
 				}
-			}
+			},
+			"allOf": [{ "$ref": "#/$defs/json-data-body" }]
+		},
+		"yaml-data": {
+			"title": "YAMLファイル定義",
+			"description": "YAMLファイルの内容に対する制約。パース後のデータを JSON と同じデータモデルとして扱い、指定できるプロパティは `json-data` と同じ(`json-data-body`)。YAML を読み込んだ結果がマルチドキュメントストリーム(`---` 区切りの複数ドキュメント)ならば、各ドキュメントを要素とする JSON 配列として扱う。そうでなければ単一ドキュメントをそのまま解釈する(最外がオブジェクトの場合もあり、単一ドキュメントがトップレベルの配列である場合は配列そのもの)。【検証スキーマの指定】YAML 内の `# yaml-language-server: $schema=/path/to/stream.schema.json` 形式のディレクティブによる検証スキーマ指定は、データの `$schema` プロパティに設定されたものとして扱う。同様の意味を持つ一般的なディレクティブ(`yaml-language-server` と `$schema`)は自動で相互に変換し、併用も可能。ただし両者の指定が衝突した場合は error を返す",
+			"type": "object",
+			"unevaluatedProperties": false,
+			"x-extension": true,
+			"properties": {
+				"schema": {
+					"title": "スキーマ種別 (YAML)",
+					"description": "YAMLデータとしての検証を指定",
+					"const": "yaml"
+				}
+			},
+			"allOf": [{ "$ref": "#/$defs/json-data-body" }]
 		}
 	}
 }
