@@ -26,6 +26,8 @@ typeを明示できず、
 
 
 #
+https://claude.ai/chat/1c706c00-dff9-412f-b3cb-3321c4259cbf
+#
 作成
 https://claude.ai/chat/2827ec3e-9dee-4ac9-8ff7-5fba3b3e4dca
 

@@ -1,6 +1,7 @@
 {
-	"$schema": "/Users/rin/mydev/schema/jsonschema-extends-expansion/src/nouse_dynamicAnchor/extends.schema.json",
+	"$schema": "https://raw.githubusercontent.com/rin00159/jsonschema-extends-expansion/refs/heads/main/schema/0.0.0/2020-12/ide/extends.schema.json",
 	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とし、directory は contents か maxItems: 0 のどちらか、link は target を必須とする(実体の完全な記述)。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。x-strict-extends,x-extension については /Users/rin/mydev/schema/jsonschema-extends-expansion で定義されている。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。メタデータ系は common-metadata(mode / owner / group / mtime / ctime とその -human 版)で表し、tree -J の user / group 名 / time / inode / error は受理しない。",
+	"$id": "https://raw.githubusercontent.com/rin00159/directory-jsonschema/refs/heads/main/schema/0.0.0/directory.schema.json",
 	"title": "Directory Structure Schema",
 	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力(ノードの配列と、ちょうど1つの `tree-report`。report の位置は問わない)、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。`$ref` の基準はインスタンス文書のルート。`name` は「相対位置」(`.` / `..`)ではなくファイルオブジェクトの名前を表すため、`tree -J` のルートの `name: \".\"` は受理しない(互換より仕様を優先)。`tree -J` のメタデータ出力のうち受理するのは `mode` のみで、`user` / `group`(名前文字列)/ `time` / `inode` / `error` は受理しない(メタデータは `common-metadata` のプロパティで表す。`mode` 以外は拡張プロパティ。特に `group` は GID の整数で、`tree -J` の同名キーとは型が異なる)。",
 	"type": "array",
@@ -281,7 +282,9 @@
 			"properties": {
 				"const": {
 					"allOf": [
-						{ "$ref": "https://json-schema.org/draft/2020-12/schema" },
+						{
+							"$ref": "https://json-schema.org/draft/2020-12/meta/validation#/properties/const"
+						},
 						{ "type": "string" }
 					]
 				},
@@ -733,7 +736,7 @@
 					"x-extension": true,
 					"title": "ファイルデータ定義",
 					"description": "ファイルの内容や形式に対する具体的な検証ルール",
-					"$ref": "/Users/rin/mydev/schema/fschema-jsonscheama/schema/0.0.0/file-schema.schema.json#/$defs/file-data"
+					"$ref": "/Users/rin/mydev/schema/fileschema-jsonscheama/schema/0.0.0/file-schema.schema.json#/$defs/file-data"
 				}
 			}
 		}
