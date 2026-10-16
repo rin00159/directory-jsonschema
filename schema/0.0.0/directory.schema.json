@@ -1,8 +1,8 @@
 {
 	"$schema": "/Users/rin/mydev/schema/jsonschema-extends-expansion/src/nouse_dynamicAnchor/extends.schema.json",
-	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とし、directory は contents か maxItems: 0 のどちらか、link は target を必須とする(実体の完全な記述)。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。x-strict-extends,x-extension については /Users/rin/mydev/schema/jsonschema-extends-expansion で定義されている。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。メタデータ系は node-metadata(mode / owner / group / mtime / ctime とその -human 版)で表し、tree -J の user / group 名 / time / inode / error は受理しない。",
+	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とし、directory は contents か maxItems: 0 のどちらか、link は target を必須とする(実体の完全な記述)。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】拡張プロパティか?(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。{\"x-extension\": true} を持つスキーマの内側のプロパティにも同じ効果が及ぶ。ただし $ref を介した参照先は除く(参照先のスキーマ自身に付ける)。x-extension と x-strict-extends は $schema の extends.schema.json で定義された拡張キーワード。x-strict-extends,x-extension については /Users/rin/mydev/schema/jsonschema-extends-expansion で定義されている。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。メタデータ系は common-metadata(mode / owner / group / mtime / ctime とその -human 版)で表し、tree -J の user / group 名 / time / inode / error は受理しない。",
 	"title": "Directory Structure Schema",
-	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力(ノードの配列と、ちょうど1つの `tree-report`。report の位置は問わない)、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。`$ref` の基準はインスタンス文書のルート。`name` は「相対位置」(`.` / `..`)ではなくファイルオブジェクトの名前を表すため、`tree -J` のルートの `name: \".\"` は受理しない(互換より仕様を優先)。`tree -J` のメタデータ出力のうち受理するのは `mode` のみで、`user` / `group`(名前文字列)/ `time` / `inode` / `error` は受理しない(メタデータは `node-metadata` のプロパティで表す。`mode` 以外は拡張プロパティ。特に `group` は GID の整数で、`tree -J` の同名キーとは型が異なる)。",
+	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力(ノードの配列と、ちょうど1つの `tree-report`。report の位置は問わない)、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。`$ref` の基準はインスタンス文書のルート。`name` は「相対位置」(`.` / `..`)ではなくファイルオブジェクトの名前を表すため、`tree -J` のルートの `name: \".\"` は受理しない(互換より仕様を優先)。`tree -J` のメタデータ出力のうち受理するのは `mode` のみで、`user` / `group`(名前文字列)/ `time` / `inode` / `error` は受理しない(メタデータは `common-metadata` のプロパティで表す。`mode` 以外は拡張プロパティ。特に `group` は GID の整数で、`tree -J` の同名キーとは型が異なる)。",
 	"type": "array",
 	"x-strict-extends": true,
 	"items": {
@@ -383,10 +383,10 @@
 		"common": {
 			"type": "object",
 			"title": "共通プロパティ",
-			"description": "ディレクトリ・ファイル・リンクで共通のプロパティ(メタデータは `node-metadata`)",
+			"description": "ディレクトリ・ファイル・リンクで共通のプロパティ(メタデータは `common-metadata`)",
 			"allOf": [
 				{ "$ref": "#/$defs/reference" },
-				{ "$ref": "#/$defs/node-metadata" }
+				{ "$ref": "#/$defs/common-metadata" }
 			],
 			"properties": {
 				"type": { "$ref": "#/$defs/node-type" },
@@ -427,10 +427,83 @@
 					"minProperties": 1,
 					"title": "ハッシュ",
 					"description": "データに対応するhashをRecord形式で記述可能。準拠先`暗号学的Hash:CycloneDX 非暗号学的Hash:SPDX CRC-32:追加で仕様を一意にするためのidへのsuffix` その上でメジャーなhash種別については簡単なバリデーションを指定している。ディレクトリをhashにする場合のSORT処理は`Cロケール`準拠。"
+				},
+				"deprecated": {
+					"x-extension": true,
+					"title": "非推奨情報",
+					"description": "このノードが非推奨であることを示すフラグ、または非推奨の理由や移行先などの詳細情報オブジェクト",
+					"oneOf": [
+						{
+							"type": "boolean",
+							"title": "非推奨フラグ",
+							"description": "true の場合、このノードは非推奨"
+						},
+						{
+							"$ref": "#/$defs/deprecation-info"
+						}
+					]
 				}
 			}
 		},
-		"node-metadata": {
+		"deprecation-info": {
+			"x-extension": true,
+			"type": "object",
+			"unevaluatedProperties": false,
+			"title": "非推奨詳細情報",
+			"description": "非推奨化の理由、代替ノード、移行期日やガイドへの参照情報",
+			"properties": {
+				"reason": {
+					"type": "string",
+					"title": "非推奨理由",
+					"description": "非推奨となった背景や理由"
+				},
+				"replacement": {
+					"type": "string",
+					"title": "代替ノード",
+					"description": "移行先として推奨されるファイルやディレクトリの名称、または相対パス"
+				},
+				"deprecatedAt": {
+					"title": "非推奨指定日時・バージョン",
+					"description": "非推奨化が告知・適用された日時(ISO 8601等)またはバージョン文字列",
+					"oneOf": [
+						{
+							"type": "string",
+							"format": "date-time"
+						},
+						{
+							"type": "string",
+							"pattern": "^v?[0-9]+(\\.[0-9]+)*"
+						}
+					]
+				},
+				"removalAt": {
+					"title": "削除・廃止予定日時・バージョン",
+					"description": "完全に削除・廃止される予定の日時(ISO 8601等)またはバージョン文字列",
+					"oneOf": [
+						{
+							"type": "string",
+							"format": "date-time"
+						},
+						{
+							"type": "string",
+							"pattern": "^v?[0-9]+(\\.[0-9]+)*"
+						}
+					]
+				},
+				"migrationGuide": {
+					"type": "string",
+					"title": "移行ガイド",
+					"description": "移行手順や変更詳細を記載したドキュメント等"
+				},
+				"migrationGuideUrl": {
+					"type": "string",
+					"format": "uri",
+					"title": "移行ガイドURL",
+					"description": "移行手順や変更詳細を記載したドキュメント等のURI"
+				}
+			}
+		},
+		"common-metadata": {
 			"type": "object",
 			"title": "インフラ・構成メタデータ",
 			"description": "Ansible等の構成管理ツールに相当する属性情報。`mode` は `tree -J -p` の出力に存在するため拡張プロパティではなく、それ以外のプロパティが拡張プロパティ(`x-extension`)。ファイル・ディレクトリ・リンクで共通して利用可能。なお、owner, group, mtime, ctime にはそれぞれ人間が記述・確認しやすい形式用のプロパティ(-human サフィックス付き)が用意されていますが、それぞれ正本は元のプロパティ(サフィックスなし)の方であり、どちらか片方のみを記すならば元の方のプロパティだけを書くべきです。",

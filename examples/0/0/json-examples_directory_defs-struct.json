@@ -11,7 +11,7 @@
 						"type": "file",
 						"description": "ディレクトリ構造説明",
 						"data": {
-							"schema": "json",
+							"format": "json",
 							"contain": {
 								"$schema": "/x/package.cdx.schema.json"
 							}
@@ -174,7 +174,7 @@
 						"type": ["directory", "file"],
 						"minItems": 0,
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"const": "x"
 						}
 					}
@@ -192,7 +192,7 @@
 						"name": "a",
 						"minItems": 0,
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"const": "x"
 						},
 						"target": "t"
@@ -225,7 +225,7 @@
 					{
 						"type": "directory",
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"const": "x"
 						},
 						"name": "a"
@@ -729,7 +729,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text"
+							"format": "text"
 						},
 						"name": "a"
 					}
@@ -747,7 +747,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"const": "hello"
 						},
 						"name": "a"
@@ -766,7 +766,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "json",
+							"format": "json",
 							"properties": {
 								"a": 1
 							}
@@ -879,7 +879,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"const": "x",
 							"pattern": "x"
 						},
@@ -888,7 +888,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "json",
+							"format": "json",
 							"properties": {},
 							"contain": {
 								"a": 1
@@ -1446,7 +1446,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"const": "hello"
 						},
 						"name": "a"
@@ -1464,7 +1464,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"pattern": "^#!"
 						},
 						"name": "a"
@@ -1482,7 +1482,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"const": "x",
 							"pattern": "x",
 							"minLength": 1
@@ -1503,7 +1503,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"pattern": "(["
 						},
 						"name": "a"
@@ -1521,7 +1521,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"foo": 1
 						},
 						"name": "a"
@@ -1539,7 +1539,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text",
+							"format": "text",
 							"contain": {}
 						},
 						"name": "a"
@@ -1557,7 +1557,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "text"
+							"format": "text"
 						},
 						"name": "a"
 					}
@@ -1574,7 +1574,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "json",
+							"format": "json",
 							"properties": {
 								"a": 1
 							},
@@ -1597,7 +1597,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "json",
+							"format": "json",
 							"contain": {
 								"$schema": "x"
 							}
@@ -1617,7 +1617,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "json",
+							"format": "json",
 							"contain": "x"
 						},
 						"name": "a"
@@ -1635,7 +1635,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "json",
+							"format": "json",
 							"json-schema": {
 								"type": "object",
 								"required": ["a"]
@@ -1656,7 +1656,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "json",
+							"format": "json",
 							"json-schema": {
 								"type": 5
 							}
@@ -1676,7 +1676,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "json",
+							"format": "json",
 							"const": "x"
 						},
 						"name": "a"
@@ -1711,7 +1711,7 @@
 					{
 						"type": "file",
 						"data": {
-							"schema": "yaml"
+							"format": "yaml"
 						},
 						"name": "a"
 					}
