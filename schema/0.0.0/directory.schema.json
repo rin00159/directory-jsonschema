@@ -21,7 +21,7 @@
 			"unevaluatedProperties": false,
 			"x-extension": true,
 			"title": "ディレクトリ構造定義",
-			"description": "ルートディレクトリの構造やメタデータを定義するオブジェクト。`$schema` に `#/$defs/struct` を指定して使う。ルートは共通プロパティ(`common`: `name` / `size` / `description` / `detail` / `node-metadata` / `$ref` / `$defs`)とディレクトリ固有プロパティ(`directory-body`)を持てる。常にディレクトリなので `type` は指定できない",
+			"description": "ルートディレクトリの構造やメタデータを定義するオブジェクト。`$schema` に `#/$defs/struct` を指定して使う。ルートは共通プロパティとディレクトリ固有プロパティ(`directory-body`)を持てる。常にディレクトリなので `type` は指定できない",
 			"properties": {
 				"$schema": {
 					"type": "string",
@@ -276,36 +276,43 @@
 		},
 		"string-schema": {
 			"type": "object",
-			"$comment": "このschemaは https://json-schema.org/draft/2020-12/schema において type:string で意味を持つプロパティから抽出した定義である",
 			"title": "文字列スキーマ",
 			"description": "文字列に対する制約。指定した制約はすべて満たす必要がある(AND)",
 			"properties": {
-				"enum": {
-					"type": "array",
-					"items": true
+				"const": {
+					"allOf": [
+						{ "$ref": "https://json-schema.org/draft/2020-12/schema" },
+						{ "type": "string" }
+					]
 				},
-				"const": true,
-				"format": {
-					"type": "string"
+				"enum": {
+					"allOf": [
+						{
+							"$ref": "https://json-schema.org/draft/2020-12/meta/validation#/properties/enum"
+						},
+						{
+							"type": "array",
+							"items": { "type": "string" }
+						}
+					]
 				},
 				"minLength": {
-					"type": "integer",
-					"minimum": 0,
-					"default": 0
+					"$ref": "https://json-schema.org/draft/2020-12/meta/validation#/properties/minLength"
 				},
 				"maxLength": {
-					"type": "integer",
-					"minimum": 0
+					"$ref": "https://json-schema.org/draft/2020-12/meta/validation#/properties/maxLength"
 				},
 				"pattern": {
-					"type": "string",
-					"format": "regex"
+					"$ref": "https://json-schema.org/draft/2020-12/meta/validation#/properties/pattern"
+				},
+				"format": {
+					"$ref": "https://json-schema.org/draft/2020-12/meta/format-annotation#/properties/format"
 				},
 				"contentMediaType": {
-					"type": "string"
+					"$ref": "https://json-schema.org/draft/2020-12/meta/content#/properties/contentMediaType"
 				},
 				"contentEncoding": {
-					"type": "string"
+					"$ref": "https://json-schema.org/draft/2020-12/meta/content#/properties/contentEncoding"
 				}
 			}
 		},
@@ -396,10 +403,16 @@
 					"title": "ファイルサイズ",
 					"description": "バイト単位。整数なら完全一致、`{min, max}` なら範囲指定"
 				},
+				"title": {
+					"type": "string",
+					"title": "表示名",
+					"description": "人間向けの短い表示名",
+					"x-extension": true
+				},
 				"description": {
 					"type": "string",
 					"title": "概要",
-					"description": "このノードの役割や概要に関する説明",
+					"description": "このノードの簡単な説明(役割や概要など)",
 					"x-extension": true
 				},
 				"detail": {
@@ -407,6 +420,13 @@
 					"title": "詳細情報",
 					"description": "このノードに関するより詳しい補足情報",
 					"x-extension": true
+				},
+				"hash": {
+					"x-extension": true,
+					"$ref": "/Users/rin/mydev/schema/hash-record-schema/src/hash-record.schema.json",
+					"minProperties": 1,
+					"title": "ハッシュ",
+					"description": "データに対応するhashをRecord形式で記述可能。準拠先`暗号学的Hash:CycloneDX 非暗号学的Hash:SPDX CRC-32:追加で仕様を一意にするためのidへのsuffix` その上でメジャーなhash種別については簡単なバリデーションを指定している。ディレクトリをhashにする場合のSORT処理は`Cロケール`準拠。"
 				}
 			}
 		},
@@ -640,115 +660,9 @@
 					"x-extension": true,
 					"title": "ファイルデータ定義",
 					"description": "ファイルの内容や形式に対する具体的な検証ルール",
-					"$ref": "#/$defs/file-data"
+					"$ref": "/Users/rin/mydev/schema/fschema-jsonscheama/schema/0.0.0/file-schema.schema.json#/$defs/file-data"
 				}
 			}
-		},
-		"file-data": {
-			"type": "object",
-			"x-extension": true,
-			"title": "ファイルデータ",
-			"description": "ファイルの内容や形式に対する検証ルール。`schema` の値で定義を振り分ける",
-			"required": ["schema"],
-			"properties": {
-				"schema": {
-					"title": "データ検証スキーマ種別",
-					"description": "ファイル内容をテキストとして検証するか、JSON として検証するか、YAML として検証するかを指定する識別子",
-					"enum": ["text", "json", "yaml"]
-				}
-			},
-			"allOf": [
-				{
-					"if": {
-						"required": ["schema"],
-						"properties": { "schema": { "const": "text" } }
-					},
-					"then": { "$ref": "#/$defs/text-data" }
-				},
-				{
-					"if": {
-						"required": ["schema"],
-						"properties": { "schema": { "const": "json" } }
-					},
-					"then": { "$ref": "#/$defs/json-data" }
-				},
-				{
-					"if": {
-						"required": ["schema"],
-						"properties": { "schema": { "const": "yaml" } }
-					},
-					"then": { "$ref": "#/$defs/yaml-data" }
-				}
-			]
-		},
-		"text-data": {
-			"title": "テキストファイル定義",
-			"description": "ファイル内容(文字列)に対する制約。`schema` 以外のプロパティは `string-schema` に従います(完全一致は `const`、前方一致や正規表現は `pattern`)。複数指定した場合はすべてを満たす必要があります(AND)",
-			"type": "object",
-			"unevaluatedProperties": false,
-			"x-extension": true,
-			"properties": {
-				"schema": {
-					"title": "スキーマ種別 (テキスト)",
-					"description": "テキストデータとしての検証を指定",
-					"const": "text"
-				}
-			},
-			"allOf": [{ "$ref": "#/$defs/string-schema" }]
-		},
-		"json-data-body": {
-			"$comment": "json-data と yaml-data が共有するプロパティ定義。json-data を直接 $ref すると schema の const: json が yaml と衝突するため、schema を除いた本体をここに切り出している。",
-			"title": "JSON / YAML 共通のデータ制約",
-			"description": "パース後のデータに対する制約。`const-properties` / `contains-properties` はトップレベルがオブジェクトの場合のプロパティに対する制約、`json-schema` はデータ全体に対する JSON Schema。トップレベルが配列などオブジェクト以外のとき(YAML のマルチドキュメントを含む)は `json-schema` を使う",
-			"type": "object",
-			"x-extension": true,
-			"properties": {
-				"const-properties": {
-					"type": "object",
-					"title": "完全プロパティ定義",
-					"description": "データのトップレベルが、ここで指定したオブジェクトリテラルと完全に一致する(キーと値の過不足がない)ことを要求します。値はJSON Schemaではなく期待する実データを直接記述します"
-				},
-				"contains-properties": {
-					"type": "object",
-					"title": "部分プロパティ定義",
-					"description": "データのトップレベルに、ここで指定したオブジェクトリテラルのプロパティが存在し、その値も完全に一致することを要求します。値はJSON Schemaではなく期待する実データを直接記述します。指定していないプロパティは不問です"
-				},
-				"json-schema": {
-					"$ref": "https://json-schema.org/draft/2020-12/schema",
-					"title": "JSON Schema による検証",
-					"description": "データ全体に適用するJSON Schema(JSON Schema 2020-12 のメタスキーマに従う)"
-				}
-			}
-		},
-		"json-data": {
-			"title": "JSONファイル定義",
-			"description": "JSONファイルの内容に対する制約。指定できるプロパティは `json-data-body` を参照",
-			"type": "object",
-			"unevaluatedProperties": false,
-			"x-extension": true,
-			"properties": {
-				"schema": {
-					"title": "スキーマ種別 (JSON)",
-					"description": "JSONデータとしての検証を指定",
-					"const": "json"
-				}
-			},
-			"allOf": [{ "$ref": "#/$defs/json-data-body" }]
-		},
-		"yaml-data": {
-			"title": "YAMLファイル定義",
-			"description": "YAMLファイルの内容に対する制約。パース後のデータを JSON と同じデータモデルとして扱い、指定できるプロパティは `json-data` と同じ(`json-data-body`)。YAML を読み込んだ結果がマルチドキュメントストリーム(`---` 区切りの複数ドキュメント)ならば、各ドキュメントを要素とする JSON 配列として扱う。そうでなければ単一ドキュメントをそのまま解釈する(最外がオブジェクトの場合もあり、単一ドキュメントがトップレベルの配列である場合は配列そのもの)。【検証スキーマの指定】YAML 内の `# yaml-language-server: $schema=/path/to/stream.schema.json` 形式のディレクティブによる検証スキーマ指定は、データの `$schema` プロパティに設定されたものとして扱う。同様の意味を持つ一般的なディレクティブ(`yaml-language-server` と `$schema`)は自動で相互に変換し、併用も可能。ただし両者の指定が衝突した場合は error を返す",
-			"type": "object",
-			"unevaluatedProperties": false,
-			"x-extension": true,
-			"properties": {
-				"schema": {
-					"title": "スキーマ種別 (YAML)",
-					"description": "YAMLデータとしての検証を指定",
-					"const": "yaml"
-				}
-			},
-			"allOf": [{ "$ref": "#/$defs/json-data-body" }]
 		}
 	}
 }

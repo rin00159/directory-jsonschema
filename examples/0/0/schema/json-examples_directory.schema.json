@@ -1,11 +1,13 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"allOf": [
-		{ "$ref": "../../../json-examples-schema/src/json-examples.schema.json" }
+		{
+			"$ref": "../../../../../json-examples-schema/src/json-examples.schema.json"
+		}
 	],
 	"$defs": {
 		"_hook_valid": {
-			"$ref": "../../src/directory.schema.json"
+			"$ref": "../../../../schema/0.0.0/directory.schema.json"
 		}
 	},
 	"type": "object",
