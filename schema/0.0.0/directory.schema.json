@@ -450,61 +450,7 @@
 		},
 		"deprecation-info": {
 			"x-extension": true,
-			"type": "object",
-			"unevaluatedProperties": false,
-			"title": "非推奨詳細情報",
-			"description": "非推奨化の理由、代替ノード、移行期日やガイドへの参照情報",
-			"properties": {
-				"reason": {
-					"type": "string",
-					"title": "非推奨理由",
-					"description": "非推奨となった背景や理由"
-				},
-				"replacement": {
-					"type": "string",
-					"title": "代替ノード",
-					"description": "移行先として推奨されるファイルやディレクトリの名称、または相対パス"
-				},
-				"deprecatedAt": {
-					"title": "非推奨指定日時・バージョン",
-					"description": "非推奨化が告知・適用された日時(ISO 8601等)またはバージョン文字列",
-					"oneOf": [
-						{
-							"type": "string",
-							"format": "date-time"
-						},
-						{
-							"type": "string",
-							"pattern": "^v?[0-9]+(\\.[0-9]+)*"
-						}
-					]
-				},
-				"removalAt": {
-					"title": "削除・廃止予定日時・バージョン",
-					"description": "完全に削除・廃止される予定の日時(ISO 8601等)またはバージョン文字列",
-					"oneOf": [
-						{
-							"type": "string",
-							"format": "date-time"
-						},
-						{
-							"type": "string",
-							"pattern": "^v?[0-9]+(\\.[0-9]+)*"
-						}
-					]
-				},
-				"migrationGuide": {
-					"type": "string",
-					"title": "移行ガイド",
-					"description": "移行手順や変更詳細を記載したドキュメント等"
-				},
-				"migrationGuideUrl": {
-					"type": "string",
-					"format": "uri",
-					"title": "移行ガイドURL",
-					"description": "移行手順や変更詳細を記載したドキュメント等のURI"
-				}
-			}
+			"$ref": "https://raw.githubusercontent.com/rin00159/deprecation-jsonschema/refs/heads/main/schema/0.0.0/deprecation.schema.json"
 		},
 		"common-metadata": {
 			"type": "object",
