@@ -682,7 +682,7 @@
 					"x-extension": true,
 					"title": "ファイルデータ定義",
 					"description": "ファイルの内容や形式に対する具体的な検証ルール",
-					"$ref": "https://raw.githubusercontent.com/rin00159/fileschema-jsonscheama/refs/heads/main/schema/0.0.0/file-schema.schema.json"
+					"$ref": "https://raw.githubusercontent.com/rin00159/fileschema-jsonschema/refs/heads/main/schema/0.0.0/file-schema.schema.json"
 				}
 			}
 		}
