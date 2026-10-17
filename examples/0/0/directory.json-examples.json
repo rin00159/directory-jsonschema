@@ -1,5 +1,5 @@
 {
-	"$schema": "./schema/json-examples_directory.schema.json",
+	"$schema": "./schema/directory.json-examples.schema.json",
 	"jsons": [
 		{
 			"group": "basic",

@@ -1,5 +1,5 @@
 {
-	"$schema": "./schema/json-examples_directory_defs-struct.schema.json",
+	"$schema": "./schema/directory_defs-struct.json-examples.schema.json",
 	"jsons": [
 		{
 			"group": "basic",
