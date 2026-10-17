@@ -3,7 +3,7 @@
 	"jsons": [
 		{
 			"group": "basic",
-			"label": "DIRDESC例: contents + json contain",
+			"label": "DIRDESC例: contents + json contains-properties",
 			"valid": true,
 			"instance": {
 				"contents": [
@@ -12,7 +12,7 @@
 						"description": "ディレクトリ構造説明",
 						"data": {
 							"format": "json",
-							"contain": {
+							"contains-properties": {
 								"$schema": "/x/package.cdx.schema.json"
 							}
 						},
@@ -44,9 +44,9 @@
 		},
 		{
 			"group": "property:root",
-			"label": "ルートは名前を持てない",
+			"label": "ルートは name を持てる(type のみ不可)",
 			"pointer": "/name",
-			"valid": false,
+			"valid": true,
 			"instance": {
 				"name": "x"
 			}
@@ -472,8 +472,7 @@
 			"group": "property",
 			"group-pointer": "/$defs/common/name",
 			"label": "name: const に 'a/b' は不可",
-			"valid": true,
-			"valid@when_formatAssertion": false,
+			"valid": false,
 			"instance": {
 				"contents": [
 					{
@@ -505,8 +504,7 @@
 			"group": "property",
 			"group-pointer": "/$defs/common/name",
 			"label": "name: enum に '..' を含むと不可",
-			"valid": true,
-			"valid@when_formatAssertion": false,
+			"valid": false,
 			"instance": {
 				"contents": [
 					{
@@ -709,11 +707,13 @@
 					{
 						"type": "directory",
 						"size": 4096,
-						"name": "d"
+						"name": "d",
+						"maxItems": 0
 					},
 					{
 						"type": "link",
-						"name": "l"
+						"name": "l",
+						"target": "t"
 					}
 				]
 			}
@@ -758,7 +758,7 @@
 		{
 			"group": "property:root",
 			"group-pointer": "/concrete",
-			"label": "正常: json properties",
+			"label": "正常: json const-properties",
 			"valid": true,
 			"instance": {
 				"concrete": true,
@@ -767,7 +767,7 @@
 						"type": "file",
 						"data": {
 							"format": "json",
-							"properties": {
+							"const-properties": {
 								"a": 1
 							}
 						},
@@ -779,14 +779,15 @@
 		{
 			"group": "property:root",
 			"group-pointer": "/concrete",
-			"label": "正常: link に target 無しでも可",
+			"label": "正常: link に target あり",
 			"valid": true,
 			"instance": {
 				"concrete": true,
 				"contents": [
 					{
 						"type": "link",
-						"name": "l"
+						"name": "l",
+						"target": "t"
 					}
 				]
 			}
@@ -794,11 +795,11 @@
 		{
 			"group": "property:root",
 			"group-pointer": "/concrete",
-			"label": "正常: 空 contents",
+			"label": "正常: 空ディレクトリ(maxItems: 0)",
 			"valid": true,
 			"instance": {
 				"concrete": true,
-				"minItems": 0
+				"maxItems": 0
 			}
 		},
 		{
@@ -871,7 +872,7 @@
 		{
 			"group": "property:root",
 			"group-pointer": "/concrete",
-			"label": "補足を許可: name 以外の制約系 data (pattern/contain/json-schema)",
+			"label": "補足を許可: name 以外の制約系 data (pattern/contains-properties/json-schema)",
 			"valid": true,
 			"instance": {
 				"concrete": true,
@@ -889,8 +890,7 @@
 						"type": "file",
 						"data": {
 							"format": "json",
-							"properties": {},
-							"contain": {
+							"contains-properties": {
 								"a": 1
 							},
 							"json-schema": {
@@ -1532,7 +1532,7 @@
 		{
 			"group": "property",
 			"group-pointer": "/$defs/file-data",
-			"label": "text: contain は不可",
+			"label": "text: contains-properties は不可",
 			"valid": false,
 			"instance": {
 				"contents": [
@@ -1540,7 +1540,7 @@
 						"type": "file",
 						"data": {
 							"format": "text",
-							"contain": {}
+							"contains-properties": {}
 						},
 						"name": "a"
 					}
@@ -1567,7 +1567,7 @@
 		{
 			"group": "property",
 			"group-pointer": "/$defs/file-data",
-			"label": "json: properties + contain",
+			"label": "json: const-properties + contains-properties",
 			"valid": true,
 			"instance": {
 				"contents": [
@@ -1575,10 +1575,10 @@
 						"type": "file",
 						"data": {
 							"format": "json",
-							"properties": {
+							"const-properties": {
 								"a": 1
 							},
-							"contain": {
+							"contains-properties": {
 								"b": 2
 							}
 						},
@@ -1590,7 +1590,7 @@
 		{
 			"group": "property",
 			"group-pointer": "/$defs/file-data",
-			"label": "json: contain の値つき($schema)",
+			"label": "json: contains-properties の値つき($schema)",
 			"valid": true,
 			"instance": {
 				"contents": [
@@ -1598,7 +1598,7 @@
 						"type": "file",
 						"data": {
 							"format": "json",
-							"contain": {
+							"contains-properties": {
 								"$schema": "x"
 							}
 						},
@@ -1610,7 +1610,7 @@
 		{
 			"group": "property",
 			"group-pointer": "/$defs/file-data",
-			"label": "json: contain が文字列は不可",
+			"label": "json: contains-properties が文字列は不可",
 			"valid": false,
 			"instance": {
 				"contents": [
@@ -1618,7 +1618,7 @@
 						"type": "file",
 						"data": {
 							"format": "json",
-							"contain": "x"
+							"contains-properties": "x"
 						},
 						"name": "a"
 					}
@@ -1704,14 +1704,15 @@
 		{
 			"group": "property",
 			"group-pointer": "/$defs/file-data",
-			"label": "data: 未知の schema",
+			"label": "data: 未知のプロパティ",
 			"valid": false,
 			"instance": {
 				"contents": [
 					{
 						"type": "file",
 						"data": {
-							"format": "yaml"
+							"format": "yaml",
+							"unknown": 1
 						},
 						"name": "a"
 					}
