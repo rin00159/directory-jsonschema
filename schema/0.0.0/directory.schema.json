@@ -1,6 +1,6 @@
 {
 	"$schema": "https://raw.githubusercontent.com/rin00159/jsonschema-extends-expansion/refs/heads/main/schema/0.0.0/2020-12/ide/extends.schema.json",
-	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とし、directory は contents か maxItems: 0 のどちらか、link は target を必須とする(実体の完全な記述)。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。メタデータ系は common-metadata(mode / owner / group / mtime / ctime とその -human 版)で表し、tree -J の user / group 名 / time / inode / error は受理しない。",
+	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とし、directory は contents か maxItems: 0 のどちらか、link / hardlink は target を必須とする(実体の完全な記述)。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。メタデータ系は common-metadata(mode / owner / group / mtime / ctime とその Human 版)で表し、tree -J の user / group 名 / time / inode / error は受理しない。",
 	"$id": "https://raw.githubusercontent.com/rin00159/directory-jsonschema/refs/heads/main/schema/0.0.0/directory.schema.json",
 	"title": "Directory Structure Schema",
 	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力(ノードの配列と、ちょうど1つの `tree-report`。report の位置は問わない)、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。`$ref` の基準はインスタンス文書のルート。`name` は「相対位置」(`.` / `..`)ではなくファイルオブジェクトの名前を表すため、`tree -J` のルートの `name: \".\"` は受理しない(互換より仕様を優先)。`tree -J` のメタデータ出力のうち受理するのは `mode` のみで、`user` / `group`(名前文字列)/ `time` / `inode` / `error` は受理しない(メタデータは `common-metadata` のプロパティで表す。`mode` 以外は拡張プロパティ。特に `group` は GID の整数で、`tree -J` の同名キーとは型が異なる)。",
@@ -8,11 +8,17 @@
 	"x-strict-extends": true,
 	"items": {
 		"oneOf": [
-			{ "$ref": "#/$defs/tree-node" },
-			{ "$ref": "#/$defs/tree-report" }
+			{
+				"$ref": "#/$defs/tree-node"
+			},
+			{
+				"$ref": "#/$defs/tree-report"
+			}
 		]
 	},
-	"contains": { "$ref": "#/$defs/tree-report" },
+	"contains": {
+		"$ref": "#/$defs/tree-report"
+	},
 	"minContains": 1,
 	"maxContains": 1,
 	"$defs": {
@@ -37,17 +43,25 @@
 					"type": "boolean",
 					"default": false,
 					"title": "実体記述モード",
-					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで、論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` を禁止し、子要素は `contents` だけで記述します。`contents` 配下のノードには `type`(単一)と `name`(リテラル)を必須とし、directory は `contents` か `maxItems: 0`(空ディレクトリ)のいずれか、link は `target` も必須とします(実体を完全に記述させるため)。ルート自身も `contents` か `maxItems: 0` のいずれかが必須です。`contains` / `minItems` / `maxContains` などは、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として許可され、他のプロパティから導出可能であっても矛盾や冗長とはみなされません。アサーションと `contents` の実際の内容の整合はスキーマでは検証せず、ツール側の責務です(スキーマが禁止するのは `contents` と `maxItems: 0` の併記のみ)"
+					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで、論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` を禁止し、子要素は `contents` だけで記述します。`contents` 配下のノードには `type`(単一)と `name`(リテラル)を必須とし、directory は `contents` か `maxItems: 0`(空ディレクトリ)のいずれか、link / hardlink は `target` も必須とします(実体を完全に記述させるため)。ルート自身も `contents` か `maxItems: 0` のいずれかが必須です。`contains` / `minItems` / `maxContains` などは、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として許可され、他のプロパティから導出可能であっても矛盾や冗長とはみなされません。アサーションと `contents` の実際の内容の整合はスキーマでは検証せず、ツール側の責務です(スキーマが禁止するのは `contents` と `maxItems: 0` の併記のみ)"
 				}
 			},
 			"allOf": [
-				{ "$ref": "#/$defs/directory-body" },
-				{ "$ref": "#/$defs/common" },
+				{
+					"$ref": "#/$defs/directory-body"
+				},
+				{
+					"$ref": "#/$defs/common"
+				},
 				{
 					"$comment": "if / then は allOf の要素に置く。直下に置くと、Ajv で unevaluatedProperties が if 不成立時に allOf 由来のプロパティを未評価と誤判定するため(仕様上は同じ意味)。",
 					"if": {
 						"required": ["concrete"],
-						"properties": { "concrete": { "const": true } }
+						"properties": {
+							"concrete": {
+								"const": true
+							}
+						}
 					},
 					"then": {
 						"properties": {
@@ -61,7 +75,11 @@
 							"$ref": false,
 							"$defs": false
 						},
-						"allOf": [{ "$ref": "#/$defs/concrete-directory-closed" }],
+						"allOf": [
+							{
+								"$ref": "#/$defs/concrete-directory-closed"
+							}
+						],
 						"$ref": "#/$defs/concrete-rules"
 					}
 				}
@@ -75,8 +93,14 @@
 				"items": false,
 				"const": false,
 				"enum": false,
-				"contents": { "items": { "$ref": "#/$defs/concrete-node" } },
-				"contains": { "$ref": "#/$defs/concrete-assertion" }
+				"contents": {
+					"items": {
+						"$ref": "#/$defs/concrete-node"
+					}
+				},
+				"contains": {
+					"$ref": "#/$defs/concrete-assertion"
+				}
 			}
 		},
 		"concrete-directory-closed": {
@@ -86,28 +110,48 @@
 			"anyOf": [
 				{
 					"required": ["contents"],
-					"properties": { "maxItems": { "minimum": 1 } }
+					"properties": {
+						"maxItems": {
+							"minimum": 1
+						}
+					}
 				},
 				{
 					"required": ["maxItems"],
-					"properties": { "maxItems": { "const": 0 } },
-					"not": { "required": ["contents"] }
+					"properties": {
+						"maxItems": {
+							"const": 0
+						}
+					},
+					"not": {
+						"required": ["contents"]
+					}
 				}
 			]
 		},
 		"concrete-node": {
-			"$comment": "literal-node に完全性の要件を AND する。directory は子の有無が確定していること(contents か maxItems: 0)、link は target を持つことを要求する。file には追加要件を課さない(size などは任意の補足)。",
+			"$comment": "literal-node に完全性の要件を AND する。directory は子の有無が確定していること(contents か maxItems: 0)、link / hardlink は target を持つことを要求する。file には追加要件を課さない(size などは任意の補足)。",
 			"title": "実体ノード",
-			"description": "concrete モードの `contents` 配下で許可されるノード。`literal-node` の制限(`type` 単一・`name` リテラル必須、論理演算子 / `$ref` / `$defs` / `opContents` / `items` / `const` / `enum` 不可)に加え、directory は `contents` か `maxItems: 0`、link は `target` が必須",
+			"description": "concrete モードの `contents` 配下で許可されるノード。`literal-node` の制限(`type` 単一・`name` リテラル必須、論理演算子 / `$ref` / `$defs` / `opContents` / `items` / `const` / `enum` 不可)に加え、directory は `contents` か `maxItems: 0`、link / hardlink は `target` が必須",
 			"allOf": [
-				{ "$ref": "#/$defs/literal-node" },
 				{
-					"if": { "$ref": "#/$defs/applies-directory" },
-					"then": { "$ref": "#/$defs/concrete-directory-closed" }
+					"$ref": "#/$defs/literal-node"
 				},
 				{
-					"if": { "$ref": "#/$defs/applies-link" },
-					"then": { "required": ["target"] }
+					"if": {
+						"$ref": "#/$defs/applies-directory"
+					},
+					"then": {
+						"$ref": "#/$defs/concrete-directory-closed"
+					}
+				},
+				{
+					"if": {
+						"$ref": "#/$defs/applies-link"
+					},
+					"then": {
+						"required": ["target"]
+					}
 				}
 			]
 		},
@@ -116,13 +160,21 @@
 			"title": "リテラルノード",
 			"description": "name で一意に特定できるノード。`concrete-node` の土台であり、`const` / `enum` の要素にも使う。`type`(単一)と `name`(リテラル)は必須。論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` は指定不可。それ以外のプロパティは補足として任意に併記できる",
 			"allOf": [
-				{ "$ref": "#/$defs/tree-node" },
-				{ "$ref": "#/$defs/concrete-rules" }
+				{
+					"$ref": "#/$defs/tree-node"
+				},
+				{
+					"$ref": "#/$defs/concrete-rules"
+				}
 			],
 			"required": ["type", "name"],
 			"properties": {
-				"type": { "$ref": "#/$defs/node-kind" },
-				"name": { "$ref": "#/$defs/name-literal" },
+				"type": {
+					"$ref": "#/$defs/node-kind"
+				},
+				"name": {
+					"$ref": "#/$defs/name-literal"
+				},
 				"allOf": false,
 				"anyOf": false,
 				"oneOf": false,
@@ -153,8 +205,14 @@
 				"items": false,
 				"const": false,
 				"enum": false,
-				"contents": { "items": { "$ref": "#/$defs/concrete-assertion" } },
-				"contains": { "$ref": "#/$defs/concrete-assertion" }
+				"contents": {
+					"items": {
+						"$ref": "#/$defs/concrete-assertion"
+					}
+				},
+				"contains": {
+					"$ref": "#/$defs/concrete-assertion"
+				}
 			}
 		},
 		"tree-node": {
@@ -164,18 +222,32 @@
 			"type": "object",
 			"unevaluatedProperties": false,
 			"allOf": [
-				{ "$ref": "#/$defs/common" },
 				{
-					"if": { "$ref": "#/$defs/applies-directory" },
-					"then": { "$ref": "#/$defs/directory-body" }
+					"$ref": "#/$defs/common"
 				},
 				{
-					"if": { "$ref": "#/$defs/applies-file" },
-					"then": { "$ref": "#/$defs/file-body" }
+					"if": {
+						"$ref": "#/$defs/applies-directory"
+					},
+					"then": {
+						"$ref": "#/$defs/directory-body"
+					}
 				},
 				{
-					"if": { "$ref": "#/$defs/applies-link" },
-					"then": { "$ref": "#/$defs/link-body" }
+					"if": {
+						"$ref": "#/$defs/applies-file"
+					},
+					"then": {
+						"$ref": "#/$defs/file-body"
+					}
+				},
+				{
+					"if": {
+						"$ref": "#/$defs/applies-link"
+					},
+					"then": {
+						"$ref": "#/$defs/link-body"
+					}
 				}
 			]
 		},
@@ -186,8 +258,15 @@
 			"properties": {
 				"type": {
 					"anyOf": [
-						{ "const": "directory" },
-						{ "type": "array", "contains": { "const": "directory" } }
+						{
+							"const": "directory"
+						},
+						{
+							"type": "array",
+							"contains": {
+								"const": "directory"
+							}
+						}
 					]
 				}
 			}
@@ -199,21 +278,35 @@
 			"properties": {
 				"type": {
 					"anyOf": [
-						{ "const": "file" },
-						{ "type": "array", "contains": { "const": "file" } }
+						{
+							"const": "file"
+						},
+						{
+							"type": "array",
+							"contains": {
+								"const": "file"
+							}
+						}
 					]
 				}
 			}
 		},
 		"applies-link": {
 			"title": "リンク適用条件",
-			"description": "ノードがリンク種別に該当するかを判定する条件",
-			"$comment": "type が省略されているか、link を含む場合に成立する",
+			"description": "ノードがリンク種別(link / hardlink)に該当するかを判定する条件",
+			"$comment": "type が省略されているか、link または hardlink を含む場合に成立する",
 			"properties": {
 				"type": {
 					"anyOf": [
-						{ "const": "link" },
-						{ "type": "array", "contains": { "const": "link" } }
+						{
+							"enum": ["link", "hardlink"]
+						},
+						{
+							"type": "array",
+							"contains": {
+								"enum": ["link", "hardlink"]
+							}
+						}
 					]
 				}
 			}
@@ -285,7 +378,9 @@
 						{
 							"$ref": "https://json-schema.org/draft/2020-12/meta/validation#/properties/const"
 						},
-						{ "type": "string" }
+						{
+							"type": "string"
+						}
 					]
 				},
 				"enum": {
@@ -295,7 +390,9 @@
 						},
 						{
 							"type": "array",
-							"items": { "type": "string" }
+							"items": {
+								"type": "string"
+							}
 						}
 					]
 				},
@@ -320,7 +417,7 @@
 			}
 		},
 		"node-kind": {
-			"enum": ["directory", "file", "link"],
+			"enum": ["directory", "file", "link", "hardlink"],
 			"title": "ノード種別",
 			"description": "ノードの種類"
 		},
@@ -328,13 +425,17 @@
 			"title": "ノード種別の指定",
 			"description": "単一の種別、または複数の種別の配列(いずれかに該当するノードを表す)。省略した場合はすべての種別に該当する",
 			"oneOf": [
-				{ "$ref": "#/$defs/node-kind" },
+				{
+					"$ref": "#/$defs/node-kind"
+				},
 				{
 					"type": "array",
 					"x-extension": true,
 					"minItems": 1,
 					"uniqueItems": true,
-					"items": { "$ref": "#/$defs/node-kind" }
+					"items": {
+						"$ref": "#/$defs/node-kind"
+					}
 				}
 			]
 		},
@@ -359,7 +460,9 @@
 				},
 				"enum": {
 					"title": "名前の候補一覧",
-					"items": { "$ref": "#/$defs/name-literal" }
+					"items": {
+						"$ref": "#/$defs/name-literal"
+					}
 				}
 			}
 		},
@@ -377,7 +480,9 @@
 				"$defs": {
 					"x-extension": true,
 					"type": "object",
-					"additionalProperties": { "$ref": "#/$defs/tree-node" },
+					"additionalProperties": {
+						"$ref": "#/$defs/tree-node"
+					},
 					"title": "ノード定義の集合",
 					"description": "`$ref` から参照されるノード定義を名前付きで置く。再帰的な定義(自己参照)も書ける"
 				}
@@ -388,17 +493,27 @@
 			"title": "共通プロパティ",
 			"description": "ディレクトリ・ファイル・リンクで共通のプロパティ(メタデータは `common-metadata`)",
 			"allOf": [
-				{ "$ref": "#/$defs/reference" },
-				{ "$ref": "#/$defs/common-metadata" }
+				{
+					"$ref": "#/$defs/reference"
+				},
+				{
+					"$ref": "#/$defs/common-metadata"
+				}
 			],
 			"properties": {
-				"type": { "$ref": "#/$defs/node-type" },
+				"type": {
+					"$ref": "#/$defs/node-type"
+				},
 				"name": {
 					"title": "ノード名",
 					"description": "ファイルまたはディレクトリの名称。文字列ならその名前との完全一致、オブジェクトなら `string-schema` による指定(例: `{\"pattern\": \"^[a-z]+\\\\.ts$\"}`)。省略した場合は任意の名前に該当する",
 					"anyOf": [
-						{ "$ref": "#/$defs/name-literal" },
-						{ "$ref": "#/$defs/name-schema" }
+						{
+							"$ref": "#/$defs/name-literal"
+						},
+						{
+							"$ref": "#/$defs/name-schema"
+						}
 					]
 				},
 				"size": {
@@ -455,14 +570,21 @@
 		"common-metadata": {
 			"type": "object",
 			"title": "インフラ・構成メタデータ",
-			"description": "Ansible等の構成管理ツールに相当する属性情報。`mode` は `tree -J -p` の出力に存在するため拡張プロパティではなく、それ以外のプロパティが拡張プロパティ(`x-extension`)。ファイル・ディレクトリ・リンクで共通して利用可能。なお、owner, group, mtime, ctime にはそれぞれ人間が記述・確認しやすい形式用のプロパティ(-human サフィックス付き)が用意されていますが、それぞれ正本は元のプロパティ(サフィックスなし)の方であり、どちらか片方のみを記すならば元の方のプロパティだけを書くべきです。",
+			"description": "Ansible等の構成管理ツールに相当する属性情報。`mode` は `tree -J -p` の出力に存在するため拡張プロパティではなく、それ以外のプロパティが拡張プロパティ(`x-extension`)。ファイル・ディレクトリ・リンクで共通して利用可能。なお、owner, group, mtime, ctime にはそれぞれ人間が記述・確認しやすい形式用のプロパティ(Human サフィックス付き: ownerHuman, groupHuman, mtimeHuman, ctimeHuman)が用意されていますが、それぞれ正本は元のプロパティ(サフィックスなし)の方であり、どちらか片方のみを記すならば元の方のプロパティだけを書くべきです。",
 			"properties": {
 				"mode": {
 					"title": "パーミッション (mode)",
 					"description": "アクセス権限。文字列での8進数表現(例: '0644')または整数を許容します。",
 					"oneOf": [
-						{ "type": "string", "pattern": "^0?[0-7]{3,4}$" },
-						{ "type": "integer", "minimum": 0, "maximum": 4095 }
+						{
+							"type": "string",
+							"pattern": "^0?[0-7]{3,4}$"
+						},
+						{
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 4095
+						}
 					]
 				},
 				"owner": {
@@ -472,11 +594,11 @@
 					"title": "所有者 UID (owner)",
 					"description": "ファイルやディレクトリを所有するシステム固有のUID。このプロパティが正本となります。"
 				},
-				"owner-human": {
+				"ownerHuman": {
 					"x-extension": true,
 					"type": "string",
 					"minLength": 1,
-					"title": "所有ユーザー名 (owner-human)",
+					"title": "所有ユーザー名 (ownerHuman)",
 					"description": "人間が記述・確認しやすいユーザー名(文字列)。正本は owner です。"
 				},
 				"group": {
@@ -486,11 +608,11 @@
 					"title": "所有グループ GID (group)",
 					"description": "ファイルやディレクトリを所有するシステム固有のGID。このプロパティが正本となります。`tree -J` の `group`(グループ名の文字列)とは型が異なります。"
 				},
-				"group-human": {
+				"groupHuman": {
 					"x-extension": true,
 					"type": "string",
 					"minLength": 1,
-					"title": "所有グループ名 (group-human)",
+					"title": "所有グループ名 (groupHuman)",
 					"description": "人間が記述・確認しやすいグループ名(文字列)。正本は group です。"
 				},
 				"mtime": {
@@ -500,11 +622,11 @@
 					"title": "最終更新日時 (mtime)",
 					"description": "ファイル内容の最終更新日時のUNIXエポック秒。このプロパティが正本となります。"
 				},
-				"mtime-human": {
+				"mtimeHuman": {
 					"x-extension": true,
 					"type": "string",
 					"format": "date-time",
-					"title": "最終更新日時 文字列表現 (mtime-human)",
+					"title": "最終更新日時 文字列表現 (mtimeHuman)",
 					"description": "人間が記述・確認しやすいISO 8601フォーマット等の日時文字列。正本は mtime です。"
 				},
 				"ctime": {
@@ -514,11 +636,11 @@
 					"title": "作成・メタデータ変更日時 (ctime)",
 					"description": "ファイルの作成、またはメタデータの変更日時のUNIXエポック秒。このプロパティが正本となります。"
 				},
-				"ctime-human": {
+				"ctimeHuman": {
 					"x-extension": true,
 					"type": "string",
 					"format": "date-time",
-					"title": "作成日時 文字列表現 (ctime-human)",
+					"title": "作成日時 文字列表現 (ctimeHuman)",
 					"description": "人間が記述・確認しやすいISO 8601フォーマット等の日時文字列。正本は ctime です。"
 				}
 			}
@@ -530,7 +652,9 @@
 					"x-extension": true,
 					"type": "array",
 					"minItems": 1,
-					"items": { "$ref": "#/$defs/tree-node" },
+					"items": {
+						"$ref": "#/$defs/tree-node"
+					},
 					"title": "すべてに該当",
 					"description": "すべての要素に該当すること"
 				},
@@ -538,7 +662,9 @@
 					"x-extension": true,
 					"type": "array",
 					"minItems": 1,
-					"items": { "$ref": "#/$defs/tree-node" },
+					"items": {
+						"$ref": "#/$defs/tree-node"
+					},
 					"title": "いずれかに該当",
 					"description": "1つ以上の要素に該当すること"
 				},
@@ -546,7 +672,9 @@
 					"x-extension": true,
 					"type": "array",
 					"minItems": 1,
-					"items": { "$ref": "#/$defs/tree-node" },
+					"items": {
+						"$ref": "#/$defs/tree-node"
+					},
 					"title": "ちょうど1つに該当",
 					"description": "ちょうど1つの要素に該当すること"
 				},
@@ -581,7 +709,11 @@
 			"type": "object",
 			"title": "ディレクトリ固有プロパティ",
 			"description": "ディレクトリに固有のプロパティ。子要素の存在・個数・閉じ方は、ここの配列系プロパティだけが決める。ディレクトリ以外のノードでは、これらは成立扱いになる(JSON Schemaと同じ)",
-			"allOf": [{ "$ref": "#/$defs/logic" }],
+			"allOf": [
+				{
+					"$ref": "#/$defs/logic"
+				}
+			],
 			"properties": {
 				"contents": {
 					"type": "array",
@@ -589,7 +721,9 @@
 					"title": "必須の子要素(閉鎖)",
 					"description": "直下に必ず存在する子要素。各要素に該当する子が1つ以上存在し、かつすべての子が `contents` または `opContents` のいずれかの要素に該当すること(記述にない子は許さない)。1つの子が複数の要素を同時に満たしてもよく、個数の割り当てはしない。子の集合の1対1の一致が必要なら `const`、必須だが他も許す場合は `contains` を使う。個別の個数指定は `contains` + `minContains` / `maxContains` を使う。空ディレクトリは `maxItems: 0` で表す。",
 					"$comment": "【展開ロジック】contents の各要素 X について allOf に {contains: X, minContains: 1} を追加する。contents と opContents のどちらかが存在するとき、items に {anyOf: [contents の全要素, opContents の全要素]} を AND で追加する。",
-					"items": { "$ref": "#/$defs/tree-node" }
+					"items": {
+						"$ref": "#/$defs/tree-node"
+					}
 				},
 				"opContents": {
 					"x-extension": true,
@@ -598,14 +732,16 @@
 					"title": "任意の子要素(閉鎖)",
 					"description": "直下に存在してもしなくてもよい子要素。存在を要求しないが、閉鎖の許可リストには加わる。`opContents` だけを書いた場合も、記述にない子は許さない。パターン名の要素は0個以上と解釈する。",
 					"$comment": "【展開ロジック】opContents の要素は contains を生成せず、items.anyOf にのみ追加される。",
-					"items": { "$ref": "#/$defs/tree-node" }
+					"items": {
+						"$ref": "#/$defs/tree-node"
+					}
 				},
 				"minItems": {
 					"x-extension": true,
 					"type": "integer",
 					"minimum": 0,
 					"title": "子要素数の下限",
-					"description": "直下の子要素(file/link/directory)の個数がこの値以上"
+					"description": "直下の子要素(file/link/hardlink/directory)の個数がこの値以上"
 				},
 				"maxItems": {
 					"x-extension": true,
@@ -644,7 +780,9 @@
 				"const": {
 					"x-extension": true,
 					"type": "array",
-					"items": { "$ref": "#/$defs/literal-node" },
+					"items": {
+						"$ref": "#/$defs/literal-node"
+					},
 					"title": "子要素の完全一致(順不同)",
 					"description": "子要素の集合がこの配列と一致すること。順序は問わない。各要素は `literal-node`(`type` が単一で `name` がリテラル。論理演算子・`$ref`・`opContents`・`items`・`const`・`enum` は不可)で、`name` は互いに異なること(同名の要素は充足不能)。`name` がリテラルでディレクトリ内の名前は一意なので、子と要素は name で一意に対応し、割り当て(マッチング)問題は生じない。『すべての子がいずれかの要素に該当する』かつ『すべての要素に該当する子が存在する』ときに一致とする"
 				},
@@ -653,7 +791,9 @@
 					"type": "array",
 					"items": {
 						"type": "array",
-						"items": { "$ref": "#/$defs/literal-node" }
+						"items": {
+							"$ref": "#/$defs/literal-node"
+						}
 					},
 					"title": "子要素の候補(順不同)",
 					"description": "子要素の集合が、ここに列挙した配列のいずれか1つと一致すること。各配列とその要素には `const` と同じ規則(要素は `literal-node`、`name` は配列内で互いに異なる)を課す"
@@ -663,7 +803,11 @@
 		"link-body": {
 			"type": "object",
 			"title": "リンク固有プロパティ",
-			"allOf": [{ "$ref": "#/$defs/logic" }],
+			"allOf": [
+				{
+					"$ref": "#/$defs/logic"
+				}
+			],
 			"properties": {
 				"target": {
 					"type": "string",
@@ -676,13 +820,17 @@
 		"file-body": {
 			"type": "object",
 			"title": "ファイル固有プロパティ",
-			"allOf": [{ "$ref": "#/$defs/logic" }],
+			"allOf": [
+				{
+					"$ref": "#/$defs/logic"
+				}
+			],
 			"properties": {
 				"data": {
 					"x-extension": true,
 					"title": "ファイルデータ定義",
 					"description": "ファイルの内容や形式に対する具体的な検証ルール",
-					"$ref": "https://raw.githubusercontent.com/rin00159/fileschema-jsonschema/refs/heads/main/schema/0.0.0/file-schema.schema.json"
+					"$ref": "https://raw.githubusercontent.com/rin00159/fileschema-jsonscheama/refs/heads/main/schema/0.0.0/file-schema.schema.json"
 				}
 			}
 		}
