@@ -23,7 +23,7 @@
 	"maxContains": 1,
 	"$defs": {
 		"struct": {
-			"$comment": "concrete: true のとき、ルート自身に論理演算子と $ref・$defs の禁止を課し、さらに concrete-rules を適用する(opContents・items・const・enum の禁止、contents 配下全ノードへの concrete-node の適用、contains の値への concrete-assertion の適用)。JSON Schemaには親のフラグを子へ伝播する標準機構がないため、再帰的な concrete-node / concrete-assertion 定義で実現している。",
+			"$comment": "JSON Schemaには親のフラグを子へ伝播する標準機構がないため、再帰的な concrete-node / concrete-assertion 定義で実現している。",
 			"type": "object",
 			"unevaluatedProperties": false,
 			"x-extension": true,
@@ -130,7 +130,7 @@
 			]
 		},
 		"concrete-node": {
-			"$comment": "literal-node に完全性の要件を AND する。directory は子の有無が確定していること(contents か maxItems: 0)、link / hardlink は target を持つことを要求する。file には追加要件を課さない(size などは任意の補足)。",
+			"$comment": "literal-node に完全性の要件を AND する。",
 			"title": "実体ノード",
 			"description": "concrete モードの `contents` 配下で許可されるノード。`literal-node` の制限(`type` 単一・`name` リテラル必須、論理演算子 / `$ref` / `$defs` / `opContents` / `items` / `const` / `enum` 不可)に加え、directory は `contents` か `maxItems: 0`、link / hardlink は `target` が必須",
 			"allOf": [
@@ -156,7 +156,7 @@
 			]
 		},
 		"literal-node": {
-			"$comment": "(concrete-node の土台、および const / enum の要素)tree-node に concrete-rules を AND し、実体を特定する type(単一)と name(リテラル)を必須にし、論理演算子と $ref・$defs を禁止する。contents を再帰的に辿ることで、struct の concrete フラグを配下全体へ伝播させる。",
+			"$comment": "(concrete-node の土台、および const / enum の要素) contents を再帰的に辿ることで、struct の concrete フラグを配下全体へ伝播させる。",
 			"title": "リテラルノード",
 			"description": "name で一意に特定できるノード。`concrete-node` の土台であり、`const` / `enum` の要素にも使う。`type`(単一)と `name`(リテラル)は必須。論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` は指定不可。それ以外のプロパティは補足として任意に併記できる",
 			"allOf": [
@@ -187,7 +187,7 @@
 			}
 		},
 		"concrete-assertion": {
-			"$comment": "実体モード内のアサーション用ノード(contains の値)。type・name は任意だが、論理演算子・$ref・$defs・opContents・items・const・enum は禁止。contents と contains の値には再帰的に同じ制限を課す。",
+			"$comment": "実体モード内のアサーション用ノード(contains の値)。contents と contains の値には再帰的に同じ制限を課す。",
 			"title": "実体モードのアサーション",
 			"description": "concrete モードの `contains` の値に使われるノード。実体がその条件を満たしていることの記録であり、`type` と `name` は任意。論理演算子、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` は指定不可",
 			"$ref": "#/$defs/tree-node",
@@ -325,14 +325,12 @@
 				"directories": {
 					"type": "integer",
 					"minimum": 0,
-					"title": "総ディレクトリ数",
-					"description": "走査対象に含まれるディレクトリの合計数"
+					"title": "総ディレクトリ数"
 				},
 				"files": {
 					"type": "integer",
 					"minimum": 0,
-					"title": "総ファイル数",
-					"description": "走査対象に含まれるファイルの合計数"
+					"title": "総ファイル数"
 				}
 			}
 		},
@@ -355,14 +353,12 @@
 						"min": {
 							"type": "integer",
 							"minimum": 0,
-							"title": "下限",
-							"description": "この値以上"
+							"title": "下限"
 						},
 						"max": {
 							"type": "integer",
 							"minimum": 0,
-							"title": "上限",
-							"description": "この値以下"
+							"title": "上限"
 						}
 					}
 				}
@@ -418,8 +414,7 @@
 		},
 		"node-kind": {
 			"enum": ["directory", "file", "link", "hardlink"],
-			"title": "ノード種別",
-			"description": "ノードの種類"
+			"title": "ノード種別"
 		},
 		"node-type": {
 			"title": "ノード種別の指定",
@@ -519,7 +514,7 @@
 				"size": {
 					"$ref": "#/$defs/int-range",
 					"title": "ファイルサイズ",
-					"description": "バイト単位。整数なら完全一致、`{min, max}` なら範囲指定"
+					"description": "バイト単位。整数なら完全一致、`{min, max}` なら範囲指定。省略時は制約しない。"
 				},
 				"title": {
 					"type": "string",
@@ -548,8 +543,9 @@
 				},
 				"deprecated": {
 					"x-extension": true,
+					"default": false,
 					"title": "非推奨情報",
-					"description": "このノードが非推奨であることを示すフラグ、または非推奨の理由や移行先などの詳細情報オブジェクト",
+					"description": "このノードが非推奨であることを示すフラグ、または非推奨の理由や移行先などの詳細情報オブジェクト。省略した場合は非推奨ではない(false)として扱う。",
 					"oneOf": [
 						{
 							"type": "boolean",
@@ -574,11 +570,11 @@
 			"properties": {
 				"mode": {
 					"title": "パーミッション (mode)",
-					"description": "アクセス権限。文字列での8進数表現(例: '0644')または整数を許容します。",
+					"description": "アクセス権限。文字列での8進数表現(例: '0644')または整数を許容します。省略時は制約しない。",
 					"oneOf": [
 						{
 							"type": "string",
-							"pattern": "^0?[0-7]{3,4}$"
+							"pattern": "^([0-7]{3}|0[0-7]{3,4})$"
 						},
 						{
 							"type": "integer",
@@ -592,56 +588,56 @@
 					"type": "integer",
 					"minimum": 0,
 					"title": "所有者 UID (owner)",
-					"description": "ファイルやディレクトリを所有するシステム固有のUID。このプロパティが正本となります。"
+					"description": "ファイルやディレクトリを所有するシステム固有のUID。このプロパティが正本となります。省略時は制約しない。"
 				},
 				"ownerHuman": {
 					"x-extension": true,
 					"type": "string",
 					"minLength": 1,
 					"title": "所有ユーザー名 (ownerHuman)",
-					"description": "人間が記述・確認しやすいユーザー名(文字列)。正本は owner です。"
+					"description": "人間が記述・確認しやすいユーザー名(文字列)。正本は owner です。省略時は制約しない。"
 				},
 				"group": {
 					"x-extension": true,
 					"type": "integer",
 					"minimum": 0,
 					"title": "所有グループ GID (group)",
-					"description": "ファイルやディレクトリを所有するシステム固有のGID。このプロパティが正本となります。`tree -J` の `group`(グループ名の文字列)とは型が異なります。"
+					"description": "ファイルやディレクトリを所有するシステム固有のGID。このプロパティが正本となります。`tree -J` の `group`(グループ名の文字列)とは型が異なります。省略時は制約しない。"
 				},
 				"groupHuman": {
 					"x-extension": true,
 					"type": "string",
 					"minLength": 1,
 					"title": "所有グループ名 (groupHuman)",
-					"description": "人間が記述・確認しやすいグループ名(文字列)。正本は group です。"
+					"description": "人間が記述・確認しやすいグループ名(文字列)。正本は group です。省略時は制約しない。"
 				},
 				"mtime": {
 					"x-extension": true,
 					"type": "integer",
 					"minimum": 0,
 					"title": "最終更新日時 (mtime)",
-					"description": "ファイル内容の最終更新日時のUNIXエポック秒。このプロパティが正本となります。"
+					"description": "ファイル内容の最終更新日時のUNIXエポック秒。このプロパティが正本となります。省略時は制約しない。"
 				},
 				"mtimeHuman": {
 					"x-extension": true,
 					"type": "string",
 					"format": "date-time",
 					"title": "最終更新日時 文字列表現 (mtimeHuman)",
-					"description": "人間が記述・確認しやすいISO 8601フォーマット等の日時文字列。正本は mtime です。"
+					"description": "人間が記述・確認しやすいISO 8601フォーマット等の日時文字列。正本は mtime です。省略時は制約しない。"
 				},
 				"ctime": {
 					"x-extension": true,
 					"type": "integer",
 					"minimum": 0,
 					"title": "作成・メタデータ変更日時 (ctime)",
-					"description": "ファイルの作成、またはメタデータの変更日時のUNIXエポック秒。このプロパティが正本となります。"
+					"description": "ファイルの作成、またはメタデータの変更日時のUNIXエポック秒。このプロパティが正本となります。省略時は制約しない。"
 				},
 				"ctimeHuman": {
 					"x-extension": true,
 					"type": "string",
 					"format": "date-time",
 					"title": "作成日時 文字列表現 (ctimeHuman)",
-					"description": "人間が記述・確認しやすいISO 8601フォーマット等の日時文字列。正本は ctime です。"
+					"description": "人間が記述・確認しやすいISO 8601フォーマット等の日時文字列。正本は ctime です。省略時は制約しない。"
 				}
 			}
 		},
@@ -655,8 +651,7 @@
 					"items": {
 						"$ref": "#/$defs/tree-node"
 					},
-					"title": "すべてに該当",
-					"description": "すべての要素に該当すること"
+					"title": "すべてに該当"
 				},
 				"anyOf": {
 					"x-extension": true,
@@ -665,8 +660,7 @@
 					"items": {
 						"$ref": "#/$defs/tree-node"
 					},
-					"title": "いずれかに該当",
-					"description": "1つ以上の要素に該当すること"
+					"title": "いずれかに該当"
 				},
 				"oneOf": {
 					"x-extension": true,
@@ -675,14 +669,12 @@
 					"items": {
 						"$ref": "#/$defs/tree-node"
 					},
-					"title": "ちょうど1つに該当",
-					"description": "ちょうど1つの要素に該当すること"
+					"title": "ちょうど1つに該当"
 				},
 				"not": {
 					"x-extension": true,
 					"$ref": "#/$defs/tree-node",
-					"title": "該当しない",
-					"description": "この要素に該当しないこと"
+					"title": "該当しない"
 				},
 				"if": {
 					"x-extension": true,
@@ -719,7 +711,7 @@
 					"type": "array",
 					"minItems": 1,
 					"title": "必須の子要素(閉鎖)",
-					"description": "直下に必ず存在する子要素。各要素に該当する子が1つ以上存在し、かつすべての子が `contents` または `opContents` のいずれかの要素に該当すること(記述にない子は許さない)。1つの子が複数の要素を同時に満たしてもよく、個数の割り当てはしない。子の集合の1対1の一致が必要なら `const`、必須だが他も許す場合は `contains` を使う。個別の個数指定は `contains` + `minContains` / `maxContains` を使う。空ディレクトリは `maxItems: 0` で表す。",
+					"description": "直下に必ず存在する子要素。各要素に該当する子が1つ以上存在し、かつすべての子が `contents` または `opContents` のいずれかの要素に該当すること(記述にない子は許さない)。1つの子が複数の要素を同時に満たしてもよく、個数の割り当てはしない。子の集合の1対1の一致が必要なら `const`、必須だが他も許す場合は `contains` を使う。個別の個数指定は `contains` + `minContains` / `maxContains` を使う。空ディレクトリは `maxItems: 0` で表す。省略時は制約しない。",
 					"$comment": "【展開ロジック】contents の各要素 X について allOf に {contains: X, minContains: 1} を追加する。contents と opContents のどちらかが存在するとき、items に {anyOf: [contents の全要素, opContents の全要素]} を AND で追加する。",
 					"items": {
 						"$ref": "#/$defs/tree-node"
@@ -730,7 +722,7 @@
 					"type": "array",
 					"minItems": 1,
 					"title": "任意の子要素(閉鎖)",
-					"description": "直下に存在してもしなくてもよい子要素。存在を要求しないが、閉鎖の許可リストには加わる。`opContents` だけを書いた場合も、記述にない子は許さない。パターン名の要素は0個以上と解釈する。",
+					"description": "直下に存在してもしなくてもよい子要素。存在を要求しないが、閉鎖の許可リストには加わる。`opContents` だけを書いた場合も、記述にない子は許さない。パターン名の要素は0個以上と解釈する。省略時は制約しない。",
 					"$comment": "【展開ロジック】opContents の要素は contains を生成せず、items.anyOf にのみ追加される。",
 					"items": {
 						"$ref": "#/$defs/tree-node"
@@ -813,7 +805,7 @@
 					"type": "string",
 					"minLength": 1,
 					"title": "リンク先",
-					"description": "参照先のパス。「スキーマが表現している一番外のディレクトリ」からの相対パスとして指定します。リンク先の存在検証はツール側の責務で、スキーマでは検証しません"
+					"description": "参照先のパス。「スキーマが表現している一番外のディレクトリ」からの相対パスとして指定します。リンク先の存在検証はツール側の責務で、スキーマでは検証しません。省略時は制約しない。"
 				}
 			}
 		},
