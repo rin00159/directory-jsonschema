@@ -82,7 +82,7 @@ examples/
 }
 ```
 
-- トップレベルは `$schema` と `jsons` の2つ。
+- トップレベルは `$schema` と `jsons` の2つ。ほかに任意で `engine`(期待値が前提にしている検証ライブラリ。3.7)を置ける。
 - `$schema` は **同名のラッパースキーマへの相対パス**(`./schema/<対象>.json-examples.schema.json`)にする。
 - `jsons` に例を1件ずつ並べる。
 - インデントはタブ。
@@ -109,16 +109,20 @@ examples/
 
 | キー | 使いどころ |
 |---|---|
-| `group-pointer` | その例が検証している定義の場所。`/$defs/common/type`、`/$defs/common/name`、`/$defs/file-data`、`/$defs/reference`、`/$defs/logic`、`/$defs/directory-body`、`/concrete`、`/$defs/struct` など |
-| `pointer` | 個別の例が検証しているスキーマ内のより細かい場所。複数あるときは配列で書く(例: `/name`、`/type`、`["/$defs/reference/properties/$ref", "/$defs/directory-body/properties/contents"]`) |
+| `groupPointer` | その例が対象とするスキーマ上の場所(JSON Pointer)。**分類用で、検証対象は変えない**(検証されるのは常に、ファイル名で決まる対象。2 を参照)。`/$defs/common/type`、`/$defs/common/name`、`/$defs/file-data`、`/$defs/reference`、`/$defs/logic`、`/$defs/directory-body`、`/concrete`、`/$defs/struct` など |
+| `pointer` | 個別の例が検証しているスキーマ内のより細かい場所。複数あるときは配列で書く(例: `/name`、`/type`、`["/$defs/reference/properties/$ref", "/$defs/directory-body/properties/contents"]`)。強調のための表示用で、検証には影響しない |
 | `name` | 関連する例をまとめる名前。使われている値は `JSONSchema-Array base`、`size`、`recursive-closure` |
-| `valid@when_formatAssertion` | 検証系の `format` を厳密に評価する場合だけ結果が変わる例で、そのときの期待値を書く。通常の `valid` と食い違うときに使う(例: 不正な正規表現を `pattern` に書いた例は、通常は `valid: true`、format 評価時は `false`) |
-| `expectedErrors` | `valid: false` の例で、エラーの出る場所と種類を固定したいときに書く。`[{ "instanceLocation": "/$defs/ts-tree", "keyword": "unevaluatedProperties" }]` の形 |
+| `valid@when_formatAssertion` | `format` を検証として扱う場合(fast / full のどちらでも)だけ結果が変わる例で、そのときの期待値を書く。通常の `valid` と食い違うときに使う(例: 不正な正規表現を `pattern` に書いた例は、通常は `valid: true`、format 評価時は `false`) |
+| `valid@when_formatAssertionFull` | `format` を **full** で評価する場合だけ、`valid` と `valid@when_formatAssertion` を上書きする。fast では通るが full では通らない値(例: 存在しない日付)に使う。優先順位は 3.7 |
+| `expectedErrors` | `valid: false` の例で、エラーの出る場所と種類を固定したいときに書く。`[{ "instanceLocation": "/$defs/ts-tree", "keyword": "unevaluatedProperties" }]` の形。各エラーに書けるのは `instanceLocation`(必須)、`keyword`(必須。文字列か、候補の配列)、`schemaLocation`(エラーを起こしたキーワードのスキーマ上の位置の JSON Pointer、例 `/properties/id/type`)、`params`(部分一致で比べる付加情報、例 `{ "missingProperty": "id" }`)、`message` |
+| `expectedErrors@when_formatAssertion` | `valid@when_formatAssertion: false` の例だけに書ける、format 評価時の `expectedErrors` |
+| `expectedErrors@when_formatAssertionFull` | `valid@when_formatAssertionFull: false` の例だけに書ける、full 評価時の `expectedErrors` |
+| `errorMatch` | `expectedErrors` との突き合わせ方。`contains`(既定: 期待したエラーが含まれていればよい)か `exact`(過不足なく一致) |
 
 ### 3.3 キーの並び(観測)
 
 ```
-group → group-pointer → name → pointer → label → valid → valid@when_formatAssertion → instance → expectedErrors
+group → groupPointer → name → pointer → label → valid → valid@when_formatAssertion → valid@when_formatAssertionFull → instance → expectedErrors → expectedErrors@when_formatAssertion → expectedErrors@when_formatAssertionFull → errorMatch
 ```
 
 必要なキーだけを、この順で書く。`label` は全150件中149件にあり(1件だけ省略)、基本的には付ける。
@@ -129,10 +133,10 @@ group → group-pointer → name → pointer → label → valid → valid@when_
 |---|---|
 | `basic` | 全体像を示す基本形。実用的な通しの例 |
 | `property:root` | ルート(`struct` / `concrete` など)に関する例 |
-| `property` | 各ノードのプロパティ別の例。`group-pointer` で対象の定義を示す |
+| `property` | 各ノードのプロパティ別の例。`groupPointer` で対象の定義を示す |
 | `property:defs` | `$defs` / `$ref` / 再帰定義など、定義まわりの誤用や応用の例 |
 
-`property` の例は `group-pointer` ごとにまとめて並べる(`type` → `name` → `file-data` → `reference` → `logic` → `directory-body` の順に出現)。
+`property` の例は `groupPointer` ごとにまとめて並べる(`type` → `name` → `file-data` → `reference` → `logic` → `directory-body` の順に出現)。
 
 ### 3.5 `label` の書き方(観測)
 
@@ -156,6 +160,23 @@ group → group-pointer → name → pointer → label → valid → valid@when_
   - `directory.json-examples.json` → ルートが **配列**(ディレクトリと report の並び)。
   - `directory_defs-struct.json-examples.json` → ルートが **struct オブジェクト**(`contents`、`$schema`、`description`、`report` など)。
 - 最小限の中身にとどめ、確かめたい部分以外は書かない。
+
+### 3.7 format の扱いで結果が変わる例
+
+`format` は、検証する側によって「注釈(無視)」にも「検証」にもなる。さらに検証には ajv-formats の `fast` と `full` があり、日付のように **fast では通り full では通らない** 値がある。
+例は、`valid` を基本にして、必要なときだけ上書きキーを足して宣言する。
+
+| 検証のしかた | 期待値(最初に書かれているものを使う) |
+|---|---|
+| format を検証しない(注釈) | `valid` |
+| format を fast で検証する | `valid@when_formatAssertion` → `valid` |
+| format を full で検証する | `valid@when_formatAssertionFull` → `valid@when_formatAssertion` → `valid` |
+
+- fast と full で同じなら `valid@when_formatAssertion` だけを書く。fast では通り full では通らないなら `valid@when_formatAssertionFull: false` だけを書く(fast 用のキーは無く、`valid` がそのまま使われる)。
+- `expectedErrors` も同じ優先順位で選ばれる(`expectedErrors@when_formatAssertionFull` → `expectedErrors@when_formatAssertion` → `expectedErrors`)。上書きキーで `false` にした例にだけ、対応する `expectedErrors@when_…` を書ける。
+- format を `pattern` に置き換えた版(`format-assert-fast` / `format-assert-full`)でも同じ例を使えるように、`format` 違反の `keyword` は `["format", "pattern"]` と配列で書く。この版では `instanceLocation` と `keyword` だけが比べられる(`schemaLocation`、`params`、`message` は比べない)。
+- `message` の文言は検証ライブラリの実装・バージョンに依存する。可搬なのは `instanceLocation`・`keyword`・`params`。`message` を使うときは、ファイル先頭の `engine`(`{ "name": "ajv", "version": "8.17.1", "formats": { "name": "ajv-formats", "version": "3.0.1" } }`)で前提を示す。`engine.name` が ajv 以外のときは `message` を比べない。
+- 書くべきキーが分からないときは、`json-examples-validator <ルート> --report` が実際の結果から提案する。
 
 ## 4. ラッパースキーマの書き方
 
@@ -224,8 +245,8 @@ valid: false → instance は _hook_valid に「通らない」べき(not で反
 ### 既存の対象に例を足す場合
 
 1. 対象の例ファイル(例: `directory_defs-struct.json-examples.json`)の `jsons` に1件追加する。
-2. `group`、(あれば `group-pointer`)、`label`、`valid`、`instance` を、3.3 の並びで書く。
-3. 近い例(同じ `group-pointer`)の隣に置く。通る例と通らない例は対にして並べる。
+2. `group`、(あれば `groupPointer`)、`label`、`valid`、`instance` を、3.3 の並びで書く。
+3. 近い例(同じ `groupPointer`)の隣に置く。通る例と通らない例は対にして並べる。
 
 ### 新しい対象(別スキーマ、または `$defs` の別の部分)を足す場合
 
@@ -241,6 +262,8 @@ valid: false → instance は _hook_valid に「通らない」べき(not で反
 - [ ] ラッパースキーマの `_hook_valid` の `$ref` が正しい対象を指している(相対パスの階層数も確認)
 - [ ] 各例に `group`・`label`・`valid`・`instance` がある
 - [ ] 通らない例は、通らない理由が1つに絞られている
-- [ ] 実装依存で結果が変わる例には `valid@when_formatAssertion` を付けている
+- [ ] format の扱いで結果が変わる例には `valid@when_formatAssertion`(fast / full 共通)か `valid@when_formatAssertionFull`(full だけ)を付けている
+- [ ] `valid: false` の例には、`expectedErrors`(上書きキーで false にした例は `expectedErrors@when_…`)を付けている。`format` 違反の `keyword` は `["format", "pattern"]`
+- [ ] `groupPointer` / `pointer` は分類・強調用で、検証対象はファイル名(`_defs-…`)で決まることを理解している
 - [ ] エラーの種類まで固定したい誤用の例には `expectedErrors` を付けている
 - [ ] インデントはタブ
