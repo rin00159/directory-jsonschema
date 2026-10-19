@@ -3,7 +3,7 @@
 	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とし、directory は contents か maxItems: 0 のどちらか、link / hardlink は target を必須とする(実体の完全な記述)。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。メタデータ系は common-metadata(mode / owner / group / mtime / ctime とその Human 版)で表し、tree -J の user / group 名 / time / inode / error は受理しない。",
 	"$id": "https://raw.githubusercontent.com/rin00159/directory-jsonschema/refs/heads/main/schema/0.0.0/directory.schema.json",
 	"title": "Directory Structure Schema",
-	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力(ノードの配列と、ちょうど1つの `tree-report`。report の位置は問わない)、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。`$ref` の基準はインスタンス文書のルート。`name` は「相対位置」(`.` / `..`)ではなくファイルオブジェクトの名前を表すため、`tree -J` のルートの `name: \".\"` は受理しない(互換より仕様を優先)。`tree -J` のメタデータ出力のうち受理するのは `mode` のみで、`user` / `group`(名前文字列)/ `time` / `inode` / `error` は受理しない(メタデータは `common-metadata` のプロパティで表す。`mode` 以外は拡張プロパティ。特に `group` は GID の整数で、`tree -J` の同名キーとは型が異なる)。",
+	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力(ノードの配列と、ちょうど1つの `tree-report`。report の位置は問わない)、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。`$ref` は JSON Schema の仕様に準拠した「URI Reference の JSON Pointer フラグメント」であり、同一インスタンス文書内の `#/$defs/...` だけでなく、相対パスや GitHub Raw 等の外部定義・スキーマの参照も可能(解決はツール側の責務)。`name` は「相対位置」(`.` / `..`)ではなくファイルオブジェクトの名前を表すため、`tree -J` のルートの `name: \".\"` は受理しない(互換より仕様を優先)。`tree -J` のメタデータ出力のうち受理するのは `mode` のみで、`user` / `group`(名前文字列)/ `time` / `inode` / `error` は受理しない(メタデータは `common-metadata` のプロパティで表す。`mode` 以外は拡張プロパティ。特に `group` は GID の整数で、`tree -J` の同名キーとは型が異なる)。",
 	"type": "array",
 	"x-strict-extends": true,
 	"items": {
@@ -462,15 +462,15 @@
 			}
 		},
 		"reference": {
-			"$comment": "JSON Schema の $ref / $defs と同様。$ref は他のプロパティと併記でき、参照先のノードと自身の条件の両方を満たすこと(AND)を意味する。$defs の値はノード(tree-node)。",
 			"type": "object",
 			"properties": {
 				"$ref": {
 					"x-extension": true,
 					"type": "string",
+					"format": "uri-reference",
 					"minLength": 1,
 					"title": "ノードの参照",
-					"description": "再利用するノード定義への参照(URI参照。通常は `#/$defs/名前`)。基準(`#`)はインスタンス文書のルートで、`#/$defs/名前` はルートに置かれた `$defs` の定義を指す。自己参照(再帰定義)も書ける。解決はツール側の責務で、スキーマでは検証しません"
+					"description": "再利用するノード定義への参照。他のプロパティと併記可能であり、参照先のノードと自身の条件の両方を満たすこと(AND)を意味します。JSON Schema の $ref と同様に「\"URI Reference\" の \"JSON Pointer\" フラグメント(format: uri-reference)」に対応。同一インスタンス文書内の `#/$defs/名前` や自己参照(再帰定義)だけでなく、相対パス(例: `./common.yaml#/$defs/名前`)や GitHub Raw 等の外部URLにあるスキーマ/ノード定義も参照可能です。解決はツール側の責務で、スキーマ単体では構文検証のみ行います"
 				},
 				"$defs": {
 					"x-extension": true,
@@ -479,7 +479,7 @@
 						"$ref": "#/$defs/tree-node"
 					},
 					"title": "ノード定義の集合",
-					"description": "`$ref` から参照されるノード定義を名前付きで置く。再帰的な定義(自己参照)も書ける"
+					"description": "`$ref` から参照されるノード定義を名前付きで置きます。再帰的な定義(自己参照)も可能です"
 				}
 			}
 		},
