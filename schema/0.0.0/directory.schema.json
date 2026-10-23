@@ -43,7 +43,7 @@
 					"type": "boolean",
 					"default": false,
 					"title": "実体記述モード",
-					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」として扱います。自身と配下のすべてのノードで、論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` を禁止し、子要素は `contents` だけで記述します。`contents` 配下のノードには `type`(単一)と `name`(リテラル)を必須とし、directory は `contents` か `maxItems: 0`(空ディレクトリ)のいずれか、link / hardlink は `target` も必須とします(実体を完全に記述させるため)。ルート自身も `contents` か `maxItems: 0` のいずれかが必須です。`contains` / `minItems` / `maxContains` などは、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として許可され、他のプロパティから導出可能であっても矛盾や冗長とはみなされません。アサーションと `contents` の実際の内容の整合はスキーマでは検証せず、ツール側の責務です(スキーマが禁止するのは `contents` と `maxItems: 0` の併記のみ)"
+					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」かそれに準じるものとして扱います。自身と配下のすべてのノードで、論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` を禁止し、子要素は `contents` だけで記述します。`contents` 配下のノードには `type`(単一)と `name`(リテラル)を必須とし、directory は `contents` か `maxItems: 0`(空ディレクトリ)のいずれか、link / hardlink は `target` も必須とします(実体を完全に記述させるため)。ルート自身も `contents` か `maxItems: 0` のいずれかが必須です。`contains` / `minItems` / `maxContains` などは、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として許可され、他のプロパティから導出可能であっても矛盾や冗長とはみなされません。アサーションと `contents` の実際の内容の整合はスキーマでは検証せず、ツール側の責務です(スキーマが禁止するのは `contents` と `maxItems: 0` の併記のみ)"
 				}
 			},
 			"allOf": [
