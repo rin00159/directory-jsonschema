@@ -1,5 +1,5 @@
 {
-	"$schema": "/Users/rin/mydev/schema/ripo-schema/src/schema/withRipoLinks/package.schema.json",
+	"$schema": "/Users/rin/mydev/schema/ripo-schema/src/schema/with-ripo-links/package.schema.json",
 	"name": "directory-jsonschema",
 	"version": "0.0.0",
 	"description": "ツール非依存にディレクトリ構造をJSONで表現するためのJSONSchema。`tree -J`ベースだが互換性はない//todo 現在は開発中で ripo-schema を最優先で完成させる。",
