@@ -1,9 +1,9 @@
 {
 	"$schema": "https://raw.githubusercontent.com/rin00159/jsonschema-extends-expansion/refs/heads/main/schema/0.0.0/2020-12/ide/extends.schema.json",
-	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とし、directory は contents か maxItems: 0 のどちらか、link / hardlink は target を必須とする(実体の完全な記述)。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。メタデータ系は common-metadata(mode / owner / group / mtime / ctime とその Human 版)で表し、tree -J の user / group 名 / time / inode / error は受理しない。",
+	"$comment": "【利用形態】このスキーマは「ディレクトリのスキーマ表現」と「実在するディレクトリを説明するデータ」の両方に使う。後者(#/$defs/struct の concrete: true)では、実体を特定できなくする記述(論理演算子 allOf・anyOf・oneOf・not・if・then・else、および $ref・$defs)と、子要素の重複記述になるプロパティ(opContents・items・const・enum)を禁止し、子要素は contents だけで記述させる。contents 配下のノードには type(単一)と name(リテラル)を必須とし、directory は contents か maxItems: 0 のどちらか、link / hardlink は target を必須とする(実体の完全な記述)。それ以外の制約系プロパティ(contains・minItems など)は実体への補足(満たしている制約の記録など)として許可する。【ノードの意味】tree-node は「実在するノードに対する述語」であり、ノード自身は存在を要求しない。存在・個数・閉じ方は親ディレクトリの配列系プロパティ(contents / opContents / contains / items / minItems など)が決める。【x-extension】(`tree -J` の出力に存在せず、このスキーマで追加されたプロパティにのみ true を付けられる)。【tree -J との互換】`tree -J` 互換は参考であり、互換のために仕様を曲げない(例: contents の minItems: 1 により、空ディレクトリを `\"contents\": []` で表すことは許さず、空ディレクトリは maxItems: 0 で表す)。メタデータ系は common-metadata(mode / inode / error / owner / group / mtime / ctime とその Human 版)で表し、tree -J の user / group 名 / time は受理しない。",
 	"$id": "https://raw.githubusercontent.com/rin00159/directory-jsonschema/refs/heads/main/schema/0.0.0/directory.schema.json",
 	"title": "Directory Structure Schema",
-	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力(ノードの配列と、ちょうど1つの `tree-report`。report の位置は問わない)、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。`$ref` は JSON Schema の仕様に準拠した「URI Reference の JSON Pointer フラグメント」であり、同一インスタンス文書内の `#/$defs/...` だけでなく、相対パスや GitHub Raw 等の外部定義・スキーマの参照も可能(解決はツール側の責務)。`name` は「相対位置」(`.` / `..`)ではなくファイルオブジェクトの名前を表すため、`tree -J` のルートの `name: \".\"` は受理しない(互換より仕様を優先)。`tree -J` のメタデータ出力のうち受理するのは `mode` のみで、`user` / `group`(名前文字列)/ `time` / `inode` / `error` は受理しない(メタデータは `common-metadata` のプロパティで表す。`mode` 以外は拡張プロパティ。特に `group` は GID の整数で、`tree -J` の同名キーとは型が異なる)。",
+	"description": "ファイルシステムやディレクトリ構造を単一のJSONで表現し、構造の検証を行うためのスキーマ。ルート(配列)は `tree -J` 互換の出力(ノードの配列と、ちょうど1つの `tree-report`。report の位置は問わない)、`#/$defs/struct` は手書きのディレクトリ定義(YAML/JSON)を対象とする。`$ref` は JSON Schema の仕様に準拠した「URI Reference の JSON Pointer フラグメント」であり、同一インスタンス文書内の `#/$defs/...` だけでなく、相対パスや GitHub Raw 等の外部定義・スキーマの参照も可能(解決はツール側の責務)。`name` は「相対位置」(`.` / `..`)ではなくファイルオブジェクトの名前を表すため、`tree -J` のルートの `name: \".\"` は受理しない(互換より仕様を優先)。`tree -J` のメタデータ出力のうち受理するのは `mode` / `inode` / `error` で、`user` / `group`(名前文字列)/ `time` は受理しない(メタデータは `common-metadata` のプロパティで表す。`mode` / `inode` / `error` 以外は拡張プロパティ。特に `group` は GID の整数で、`tree -J` の同名キーとは型が異なる)。",
 	"type": "array",
 	"x-strict-extends": true,
 	"items": {
@@ -566,7 +566,7 @@
 		"common-metadata": {
 			"type": "object",
 			"title": "インフラ・構成メタデータ",
-			"description": "Ansible等の構成管理ツールに相当する属性情報。`mode` は `tree -J -p` の出力に存在するため拡張プロパティではなく、それ以外のプロパティが拡張プロパティ(`x-extension`)。ファイル・ディレクトリ・リンクで共通して利用可能。なお、owner, group, mtime, ctime にはそれぞれ人間が記述・確認しやすい形式用のプロパティ(Human サフィックス付き: ownerHuman, groupHuman, mtimeHuman, ctimeHuman)が用意されていますが、それぞれ正本は元のプロパティ(サフィックスなし)の方であり、どちらか片方のみを記すならば元の方のプロパティだけを書くべきです。",
+			"description": "Ansible等の構成管理ツールに相当する属性情報。`mode` / `inode` / `error` は `tree -J` の出力に存在するため拡張プロパティではなく、それ以外のプロパティが拡張プロパティ(`x-extension`)。ファイル・ディレクトリ・リンクで共通して利用可能。なお、owner, group, mtime, ctime にはそれぞれ人間が記述・確認しやすい形式用のプロパティ(Human サフィックス付き: ownerHuman, groupHuman, mtimeHuman, ctimeHuman)が用意されていますが、それぞれ正本は元のプロパティ(サフィックスなし)の方であり、どちらか片方のみを記すならば元の方のプロパティだけを書くべきです。",
 			"properties": {
 				"mode": {
 					"title": "パーミッション (mode)",
@@ -638,6 +638,18 @@
 					"format": "date-time",
 					"title": "作成日時 文字列表現 (ctimeHuman)",
 					"description": "人間が記述・確認しやすいISO 8601フォーマット等の日時文字列。正本は ctime です。省略時は制約しない。"
+				},
+				"inode": {
+					"type": "integer",
+					"minimum": 0,
+					"title": "iノード番号 (inode)",
+					"description": "ファイルシステムのiノード番号(inode number)。省略時は制約しない。"
+				},
+				"error": {
+					"type": "string",
+					"minLength": 1,
+					"title": "エラー情報 (error)",
+					"description": "ファイル走査時やアクセス時に発生したエラーメッセージ(例: 'error opening dir')。省略時は制約しない。"
 				}
 			}
 		},
