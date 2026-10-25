@@ -695,7 +695,7 @@
 		{
 			"group": "property:root",
 			"groupPointer": "/concrete",
-			"label": "正常: type と name (directory は空明示または contents、link/hardlink は target 必須)",
+			"label": "正常: type と name (directory は空明示または contents、link は target 必須、ハードリンクは file の hardlinkTo)",
 			"valid": true,
 			"instance": {
 				"concrete": true,
@@ -717,9 +717,10 @@
 						"target": "a.ts"
 					},
 					{
-						"type": "hardlink",
+						"type": "file",
+						"size": 10,
 						"name": "hl",
-						"target": "a.ts"
+						"hardlinkTo": "a.ts"
 					}
 				]
 			}
@@ -2658,23 +2659,101 @@
 		},
 		{
 			"group": "property",
-			"groupPointer": "/$defs/common/type",
-			"label": "hardlink は target 無しでも可(述語)",
+			"groupPointer": "/$defs/file-body",
+			"label": "hardlinkTo: 同じハードリンクグループのファイルを指す(述語)",
 			"valid": true,
 			"instance": {
 				"contents": [
 					{
-						"type": "hardlink",
-						"name": "hl"
+						"type": "file",
+						"name": "hl",
+						"hardlinkTo": "src/a"
 					}
 				]
 			}
 		},
 		{
 			"group": "property",
-			"groupPointer": "/$defs/common/type",
-			"label": "hardlink に target あり",
+			"groupPointer": "/$defs/file-body",
+			"label": "hardlinkTo: type 省略でも可(file にだけ適用される)",
 			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"name": "hl",
+						"hardlinkTo": "src/a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"groupPointer": "/$defs/file-body",
+			"label": "hardlinkTo: 空文字は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": "hl",
+						"hardlinkTo": ""
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"groupPointer": "/$defs/file-body",
+			"label": "hardlinkTo: 文字列以外は不可",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": "hl",
+						"hardlinkTo": [
+							"src/a"
+						]
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"groupPointer": "/$defs/file-body",
+			"label": "hardlinkTo: directory には指定できない",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "directory",
+						"name": "d",
+						"hardlinkTo": "src/a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"groupPointer": "/$defs/file-body",
+			"label": "hardlinkTo: link には指定できない",
+			"valid": false,
+			"instance": {
+				"contents": [
+					{
+						"type": "link",
+						"name": "l",
+						"target": "a",
+						"hardlinkTo": "src/a"
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"groupPointer": "/$defs/node-kind",
+			"label": "type: hardlink は廃止(ハードリンクは file の hardlinkTo)",
+			"valid": false,
 			"instance": {
 				"contents": [
 					{
@@ -2686,22 +2765,55 @@
 			}
 		},
 		{
+			"group": "property:root",
+			"groupPointer": "/concrete",
+			"label": "concrete: hardlinkTo を持つ file(属性は各ノードが持つ)",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "file",
+						"name": "a",
+						"size": 5,
+						"inode": 100
+					},
+					{
+						"type": "file",
+						"name": "b",
+						"size": 5,
+						"inode": 100,
+						"hardlinkTo": "a"
+					}
+				]
+			}
+		},
+		{
 			"group": "property",
-			"groupPointer": "/$defs/common/type",
-			"label": "hardlink に contents は不可",
+			"groupPointer": "/$defs/common-metadata",
+			"label": "common-metadata: inode",
+			"valid": true,
+			"instance": {
+				"contents": [
+					{
+						"type": "file",
+						"name": "a",
+						"inode": 12345
+					}
+				]
+			}
+		},
+		{
+			"group": "property",
+			"groupPointer": "/$defs/common-metadata",
+			"label": "common-metadata: inode は整数のみ",
 			"valid": false,
 			"instance": {
 				"contents": [
 					{
-						"type": "hardlink",
-						"name": "hl",
-						"target": "src/a",
-						"contents": [
-							{
-								"type": "file",
-								"name": "b"
-							}
-						]
+						"type": "file",
+						"name": "a",
+						"inode": "12345"
 					}
 				]
 			}
@@ -2709,14 +2821,30 @@
 		{
 			"group": "property:root",
 			"groupPointer": "/concrete",
-			"label": "hardlink には target 必須",
+			"label": "concrete: 読めなかった directory は error だけでよい(contents も maxItems も不要)",
+			"valid": true,
+			"instance": {
+				"concrete": true,
+				"contents": [
+					{
+						"type": "directory",
+						"name": "locked",
+						"error": "error opening dir"
+					}
+				]
+			}
+		},
+		{
+			"group": "property:root",
+			"groupPointer": "/concrete",
+			"label": "concrete: error が無ければ contents か maxItems: 0 が必須",
 			"valid": false,
 			"instance": {
 				"concrete": true,
 				"contents": [
 					{
-						"type": "hardlink",
-						"name": "hl"
+						"type": "directory",
+						"name": "d"
 					}
 				]
 			}
