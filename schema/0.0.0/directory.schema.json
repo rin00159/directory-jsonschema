@@ -22,69 +22,6 @@
 	"minContains": 1,
 	"maxContains": 1,
 	"$defs": {
-		"struct": {
-			"$comment": "JSON Schemaには親のフラグを子へ伝播する標準機構がないため、再帰的な concrete-node / concrete-assertion 定義で実現している。",
-			"type": "object",
-			"unevaluatedProperties": false,
-			"x-extension": true,
-			"title": "ディレクトリ構造定義",
-			"description": "ルートディレクトリの構造やメタデータを定義するオブジェクト。`$schema` に `#/$defs/struct` を指定して使う。ルートは共通プロパティとディレクトリ固有プロパティ(`directory-body`)を持てる。常にディレクトリなので `type` は指定できない",
-			"properties": {
-				"$schema": {
-					"type": "string",
-					"title": "スキーマ参照",
-					"description": "この記述が従うスキーマのパスまたはURI"
-				},
-				"report": {
-					"$ref": "#/$defs/tree-report"
-				},
-				"type": false,
-				"concrete": {
-					"type": "boolean",
-					"default": false,
-					"title": "実体記述モード",
-					"description": "trueの場合、この記述を「実在するディレクトリを説明するデータ」かそれに準じるものとして扱います。自身と配下のすべてのノードで、論理演算子(`allOf` / `anyOf` / `oneOf` / `not` / `if` / `then` / `else`)、`$ref` / `$defs`、`opContents`、`items` / `const` / `enum` を禁止し、子要素は `contents` だけで記述します。`contents` 配下のノードには `type`(単一)と `name`(リテラル)を必須とし、directory は `contents` か `maxItems: 0`(空ディレクトリ)のいずれか(読めずに `error` を持つ場合を除く)、link は `target` も必須とします(実体を完全に記述させるため)。ルート自身も `contents` か `maxItems: 0` のいずれかが必須です。`contains` / `minItems` / `maxContains` などは、実体がその制約を満たしていることを保証するアサーション(満たしている制約のキャッシュ)として許可され、他のプロパティから導出可能であっても矛盾や冗長とはみなされません。アサーションと `contents` の実際の内容の整合はスキーマでは検証せず、ツール側の責務です(スキーマが禁止するのは `contents` と `maxItems: 0` の併記のみ)"
-				}
-			},
-			"allOf": [
-				{
-					"$ref": "#/$defs/directory-body"
-				},
-				{
-					"$ref": "#/$defs/common"
-				},
-				{
-					"$comment": "if / then は allOf の要素に置く。直下に置くと、Ajv で unevaluatedProperties が if 不成立時に allOf 由来のプロパティを未評価と誤判定するため(仕様上は同じ意味)。",
-					"if": {
-						"required": ["concrete"],
-						"properties": {
-							"concrete": {
-								"const": true
-							}
-						}
-					},
-					"then": {
-						"properties": {
-							"allOf": false,
-							"anyOf": false,
-							"oneOf": false,
-							"not": false,
-							"if": false,
-							"then": false,
-							"else": false,
-							"$ref": false,
-							"$defs": false
-						},
-						"allOf": [
-							{
-								"$ref": "#/$defs/concrete-directory-closed"
-							}
-						],
-						"$ref": "#/$defs/concrete-rules"
-					}
-				}
-			]
-		},
 		"concrete-rules": {
 			"$comment": "concrete モードの伝播規則(struct のルートと concrete-node が共有する)。(1) 子の記述は contents に一本化するため、opContents / items / const / enum を禁止する。(2) contents の子は concrete-node(type と name 必須)。(3) contains は『満たしている制約の記録』として許可するが、値は concrete-assertion に従う。",
 			"title": "実体モードの伝播規則",
